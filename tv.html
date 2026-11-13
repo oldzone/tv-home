@@ -52,7 +52,7 @@
 
   section{margin-top:2.6vh}
   section h2{font-size:2.3vh;font-weight:600;color:var(--muted);margin:0 0 1.4vh .4vw}
-  .row{display:flex;gap:2vw;padding:1.5vh .6vw 2.5vh;overflow:hidden;scroll-behavior:smooth}
+  .row{display:flex;gap:2vw;padding:2.5vh 1.6vw 2.5vh;margin:0 -1vw;overflow:hidden;scroll-behavior:smooth}
 
   .tile{flex:0 0 auto;width:15.5vw;aspect-ratio:16/10;border-radius:var(--radius);position:relative;
     display:flex;align-items:center;justify-content:center;outline:none;cursor:pointer;
@@ -130,29 +130,20 @@
 <div class="toast" id="toast">
   <img id="tImg" alt="">
   <div style="flex:1;min-width:0">
-    <div class="k">iPhone'dan geldi</div>
+    <div class="k" id="tK">iPhone'dan geldi</div>
     <div class="h" id="tTitle"></div>
     <div class="u" id="tUrl"></div>
-    <div class="bar"><i id="tBar"></i></div>
-    <div class="hint">Birazdan açılıyor · iptal için Geri</div>
+    <div class="bar" id="tBarW"><i id="tBar"></i></div>
+    <div class="hint" id="tHint">Birazdan açılıyor · iptal için Geri</div>
   </div>
 </div>
 
+<script src="apps.js"></script>
 <script>
 /* ============ AYARLAR (istersen düzenle) ============ */
 // Android TV paket adları. Tarayıcın intent:// linklerini destekliyorsa uygulama doğrudan açılır.
-const APPS = [
-  // domain: ikon bu sitenin kendisinden çekilir. İstersen "img" ile kendi ikon adresini ver.
-  {name:"YouTube",     domain:"youtube.com",     bg:"#ffffff", pkg:"com.google.android.youtube.tv", web:"https://www.youtube.com"},
-  {name:"Netflix",     domain:"netflix.com",     bg:"#000000", pkg:"com.netflix.ninja",            web:"https://www.netflix.com"},
-  {name:"Disney+",     domain:"disneyplus.com",  bg:"linear-gradient(160deg,#0e3a8c,#04163f)", pkg:"com.disney.disneyplus", web:"https://www.disneyplus.com"},
-  {name:"Prime Video", domain:"primevideo.com",  bg:"linear-gradient(160deg,#1b2c3d,#0f171e)", pkg:"com.amazon.amazonvideo.livingroom", web:"https://www.primevideo.com"},
-  {name:"Spotify",     domain:"spotify.com",     bg:"#121212", pkg:"com.spotify.tv.android",       web:"https://open.spotify.com"},
-  {name:"tabii",       domain:"tabii.com",       bg:"#0b0b0f", pkg:null,                           web:"https://www.tabii.com"},
-  {name:"Google",      domain:"google.com",      bg:"#ffffff", pkg:null,                           web:"https://www.google.com"},
-  {name:"Ayarlar",     icon:"⚙︎",               bg:"linear-gradient(160deg,#8e8e93,#48484a)", settings:true}
-];
-const NTFY = "https://ntfy.sh";
+const APPS = window.TVHOME_APPS;
+const NTFY = window.TVHOME_NTFY;
 const OPEN_DELAY_MS = 4000;     // gelen link kaç ms sonra açılsın
 const MAX_HIST = 20;
 /* ==================================================== */
@@ -196,7 +187,7 @@ function ytId(u){
   return null;
 }
 function thumb(u){ const id=ytId(u); return id?`https://i.ytimg.com/vi/${id}/hqdefault.jpg`:null; }
-function siteIcon(d){ return `https://www.google.com/s2/favicons?domain=${d}&sz=256`; }
+const siteIcon = window.tvhomeIcon;
 function host(u){ try{ return new URL(u).hostname.replace(/^www\./,""); }catch(e){ return ""; } }
 function intentFor(url){
   const id=ytId(url);
@@ -206,12 +197,19 @@ function intentFor(url){
   }
   return null;
 }
+const FULLY = (typeof window.fully!=="undefined") ? window.fully : null;
+function toFront(){ try{ FULLY && FULLY.bringToForeground(); }catch(e){} }
 function launch(url){
+  const id=ytId(url);
+  if(FULLY && id){
+    try{ FULLY.startIntent(`intent://www.youtube.com/watch?v=${id}#Intent;scheme=https;package=com.google.android.youtube.tv;end`); return; }catch(e){}
+  }
   const it=intentFor(url);
   if(it){ location.href=it; setTimeout(()=>{ if(document.visibilityState==="visible") location.href=url; },2500); }
   else location.href=url;
 }
 function launchApp(a){
+  if(FULLY && a.pkg){ try{ FULLY.startApplication(a.pkg); return; }catch(e){} }
   if(a.settings){ location.href="intent:#Intent;action=android.settings.SETTINGS;end"; return; }
   if(a.pkg){
     const fb = a.web?`S.browser_fallback_url=${encodeURIComponent(a.web)};`:"";
@@ -279,19 +277,38 @@ let pending=null;
 function incoming(msg){
   let data;
   try{ data=JSON.parse(msg); }catch(e){ data={url:msg.trim()}; }
-  if(!data || !data.url) return;
-  let url=data.url.trim();
+  if(!data) return;
+  const t=data.t||"open";
+  if(t==="wake"){ toFront(); banner("iPhone bağlandı"); return; }
+  if(t==="home"){ toFront(); cancelPending(); focusAt(1,0); banner("Ana ekran"); return; }
+  if(t==="app"){
+    const a=APPS.find(x=>x.id===data.id); if(!a) return;
+    toFront(); banner(a.name+" açılıyor…"); setTimeout(()=>launchApp(a),600); return;
+  }
+  if(!data.url) return;
+  let url=String(data.url).trim();
   const m=url.match(/https?:\/\/\S+/); if(m) url=m[0];
   else if(/^[\w-]+(\.[\w-]+)+/.test(url)) url="https://"+url;
   else return;
   const item={url,title:data.title||"",ts:Date.now()};
   hist=[item,...hist.filter(h=>h.url!==url)].slice(0,MAX_HIST);
   store.set("hist",hist); renderHist();
+  toFront();
+  if(data.now) { launch(url); fetchTitle(item); return; }
   showToast(item);
   fetchTitle(item);
 }
+let bannerT;
+function banner(text){
+  $("tTitle").textContent=text; $("tUrl").textContent=""; $("tImg").style.display="none";
+  $("tBar").style.transition="none"; $("tBar").style.width="0";
+  ["tBarW","tHint","tK"].forEach(i=>$(i).style.display="none");
+  $("toast").classList.add("show"); clearTimeout(bannerT);
+  bannerT=setTimeout(()=>{ if(!pending) $("toast").classList.remove("show"); },2200);
+}
 function showToast(item){
-  cancelPending();
+  cancelPending(); clearTimeout(bannerT);
+  ["tBarW","tHint","tK"].forEach(i=>$(i).style.display="");
   $("tTitle").textContent=item.title||host(item.url)||"Link";
   $("tUrl").textContent=item.url;
   const th=thumb(item.url);

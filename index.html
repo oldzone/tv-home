@@ -6,203 +6,289 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="TV'ye Gönder">
+<meta name="apple-mobile-web-app-title" content="TV">
 <meta name="theme-color" content="#000000">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
-<title>TV'ye Gönder</title>
+<title>TV</title>
 <style>
   :root{
-    --bg:#f2f2f7; --card:#fff; --fg:#000; --muted:#8e8e93; --sep:rgba(60,60,67,.18);
-    --accent:#0a84ff; --field:#e9e9ee; --ok:#34c759; --err:#ff3b30;
-  }
-  @media (prefers-color-scheme:dark){
-    :root{ --bg:#000; --card:#1c1c1e; --fg:#fff; --muted:#8e8e93; --sep:rgba(84,84,88,.6); --field:#2c2c2e; }
+    --bg:#000; --card:#1c1c1e; --card2:#2c2c2e; --fg:#fff; --muted:#8e8e93; --sep:rgba(84,84,88,.55);
+    --accent:#0a84ff; --ok:#30d158; --warn:#ff9f0a;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   html,body{background:var(--bg);color:var(--fg);
-    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;
-    -webkit-font-smoothing:antialiased}
-  body{padding:calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 24px)}
-  h1{font-size:34px;font-weight:700;letter-spacing:.01em;margin:8px 4px 4px}
-  .sub{color:var(--muted);font-size:15px;margin:0 4px 18px;display:flex;align-items:center;gap:8px}
-  .dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
-  .dot.ok{background:var(--ok)}
-  .card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:22px}
-  .label{font-size:13px;text-transform:uppercase;color:var(--muted);margin:0 4px 6px;letter-spacing:.02em}
-  textarea{width:100%;min-height:92px;border:0;border-radius:10px;background:var(--field);color:var(--fg);
-    font:inherit;font-size:17px;padding:12px;resize:none;outline:none}
-  .btns{display:flex;gap:10px;margin-top:12px}
-  button{font:inherit;border:0;border-radius:12px;padding:14px 12px;font-size:17px;font-weight:600;cursor:pointer;flex:1;
-    transition:transform .1s,opacity .2s}
-  button:active{transform:scale(.97);opacity:.85}
-  .primary{background:var(--accent);color:#fff}
-  .secondary{background:var(--field);color:var(--accent)}
-  .preview{display:none;margin-top:12px;gap:12px;align-items:center}
-  .preview.show{display:flex}
-  .preview img{width:112px;aspect-ratio:16/9;object-fit:cover;border-radius:8px;background:var(--field)}
-  .preview .pt{font-size:14px;color:var(--muted);word-break:break-all;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;-webkit-font-smoothing:antialiased}
+  body{padding:calc(env(safe-area-inset-top) + 10px) 16px calc(env(safe-area-inset-bottom) + 40px);
+    background:radial-gradient(600px 400px at 0% 0%,#1d2b5c66,transparent 70%),radial-gradient(500px 400px at 100% 10%,#5a1d5c55,transparent 70%),#000;
+    min-height:100vh}
+  button{font:inherit;border:0;cursor:pointer;color:inherit;background:none}
+  button:active{transform:scale(.96)}
+  input{font:inherit;outline:none;border:0;background:transparent;color:var(--fg)}
+
+  header{display:flex;align-items:center;justify-content:space-between;margin:6px 2px 18px}
+  h1{font-size:32px;font-weight:700;letter-spacing:-.01em}
+  .pill{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);background:var(--card);padding:6px 10px;border-radius:20px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--muted)}
+  .dot.ok{background:var(--ok);box-shadow:0 0 6px var(--ok)}
+
+  /* Connect hero */
+  .hero{display:grid;grid-template-columns:1fr auto;gap:10px;margin-bottom:22px}
+  .connect{background:linear-gradient(135deg,#0a84ff,#5e5ce6);border-radius:18px;padding:16px;text-align:left;
+    display:flex;align-items:center;gap:12px;box-shadow:0 8px 24px #0a84ff40;transition:transform .1s}
+  .connect .ic{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:20px}
+  .connect b{display:block;font-size:17px}
+  .connect small{font-size:13px;opacity:.8}
+  .connect.done{background:linear-gradient(135deg,#30d158,#1f9d4a);box-shadow:0 8px 24px #30d15840}
+  .home{background:var(--card);border-radius:18px;width:74px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;color:var(--muted)}
+  .home span{font-size:22px;color:var(--fg)}
+
+  /* Search */
+  .search{background:var(--card);border-radius:14px;display:flex;align-items:center;gap:8px;padding:0 12px;height:48px}
+  .search .g{width:22px;height:22px;border-radius:50%}
+  .search input{flex:1;font-size:17px;height:100%}
+  .search input::placeholder{color:var(--muted)}
+  .chips{display:flex;gap:8px;margin:10px 0 22px;overflow-x:auto;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto;background:var(--card);border-radius:18px;padding:9px 14px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px}
+  .chip img{width:16px;height:16px;border-radius:4px}
+  .chip.primary{background:var(--accent)}
+
+  .label{font-size:13px;font-weight:600;text-transform:uppercase;color:var(--muted);margin:0 4px 8px;letter-spacing:.03em;
+    display:flex;justify-content:space-between}
+
+  /* Send link */
+  .send{background:var(--card);border-radius:18px;padding:12px;margin-bottom:22px}
+  .bigbtn{width:100%;background:var(--card2);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;text-align:left}
+  .bigbtn .ic{width:36px;height:36px;border-radius:10px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:18px;flex:0 0 auto}
+  .bigbtn b{display:block;font-size:16px}
+  .bigbtn small{color:var(--muted);font-size:13px}
+  .bigbtn.pulse{animation:pulse 1.4s ease-in-out 3}
+  @keyframes pulse{50%{box-shadow:0 0 0 4px #0a84ff80}}
+  .manual{display:flex;gap:8px;margin-top:10px}
+  .manual input{flex:1;min-width:0;background:var(--card2);border-radius:12px;padding:0 12px;height:44px;font-size:15px}
+  .manual button{flex:0 0 auto;background:var(--accent);border-radius:12px;padding:0 16px;font-weight:600}
+
+  /* Apps grid */
+  .apps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 10px;margin-bottom:22px}
+  .app{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:#ddd}
+  .app .icon{width:100%;aspect-ratio:1;border-radius:22%;display:flex;align-items:center;justify-content:center;overflow:hidden;
+    box-shadow:0 4px 12px rgba(0,0,0,.4)}
+  .app .icon img{width:58%;height:58%;object-fit:contain}
+  .app .icon .fb{font-size:26px;font-weight:700}
+
+  /* History */
   .list{background:var(--card);border-radius:14px;overflow:hidden;margin-bottom:22px}
-  .item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:.5px solid var(--sep)}
+  .item{display:flex;align-items:center;gap:12px;padding:10px 12px;border-bottom:.5px solid var(--sep)}
   .item:last-child{border-bottom:0}
-  .item img,.item .ph{width:64px;aspect-ratio:16/9;border-radius:6px;object-fit:cover;background:var(--field);flex:0 0 auto;
-    display:flex;align-items:center;justify-content:center;font-size:18px}
+  .item .th{width:68px;aspect-ratio:16/9;border-radius:6px;background:var(--card2) center/cover;flex:0 0 auto;
+    display:flex;align-items:center;justify-content:center}
+  .item .th img{width:22px;height:22px}
   .item .meta{flex:1;min-width:0}
   .item .t{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .item .h{font-size:12px;color:var(--muted)}
-  .item button{flex:0 0 auto;padding:8px 12px;font-size:14px;border-radius:16px}
-  .empty{padding:16px;color:var(--muted);font-size:15px;text-align:center}
-  .row{display:flex;align-items:center;justify-content:space-between;padding:12px 2px;border-bottom:.5px solid var(--sep);font-size:17px}
+  .item button{background:var(--card2);color:var(--accent);padding:7px 12px;border-radius:16px;font-size:14px;font-weight:600}
+  .empty{padding:16px;color:var(--muted);font-size:14px;text-align:center}
+
+  /* Settings */
+  .card{background:var(--card);border-radius:14px;padding:2px 14px;margin-bottom:22px}
+  .row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:.5px solid var(--sep);font-size:16px;gap:10px}
   .row:last-child{border-bottom:0}
-  .row input{border:0;background:transparent;color:var(--fg);font:inherit;font-size:17px;text-align:right;
-    text-transform:uppercase;letter-spacing:.15em;width:150px;outline:none}
+  .row input{text-align:right;text-transform:uppercase;letter-spacing:.15em;width:140px;font-size:16px}
   .muted{color:var(--muted)}
-  details{background:var(--card);border-radius:14px;padding:14px;margin-bottom:22px}
-  summary{font-size:17px;font-weight:600;list-style:none;cursor:pointer}
+  details{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px}
+  summary{font-size:16px;font-weight:600;list-style:none;cursor:pointer}
   summary::-webkit-details-marker{display:none}
-  details ol{margin:12px 0 0 20px;font-size:15px;line-height:1.5}
+  details ol{margin:12px 0 0 20px;font-size:14px;line-height:1.55;color:#ddd}
   details li{margin-bottom:8px}
-  code{background:var(--field);padding:2px 6px;border-radius:6px;font-size:13px;word-break:break-all}
-  .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 24px);transform:translate(-50%,250%);opacity:0;
-    background:rgba(40,40,42,.92);color:#fff;padding:12px 18px;border-radius:24px;font-size:15px;font-weight:600;
-    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:transform .35s cubic-bezier(.2,.9,.2,1);
-    display:flex;align-items:center;gap:8px;white-space:nowrap}
+  code{background:var(--card2);padding:2px 6px;border-radius:6px;font-size:12px;word-break:break-all}
+
+  .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 20px);transform:translate(-50%,250%);opacity:0;
+    background:rgba(60,60,64,.9);color:#fff;padding:12px 18px;border-radius:24px;font-size:15px;font-weight:600;
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:transform .35s cubic-bezier(.2,.9,.2,1),opacity .2s;white-space:nowrap;z-index:9}
   .toast.show{transform:translate(-50%,0);opacity:1}
 </style>
 </head>
 <body>
-  <h1>TV'ye Gönder</h1>
-  <div class="sub"><span class="dot" id="dot"></span><span id="sub">TV kodu girilmedi</span></div>
+  <header>
+    <h1>TV</h1>
+    <div class="pill"><span class="dot" id="dot"></span><span id="sub">Kod yok</span></div>
+  </header>
 
-  <div class="label">Link</div>
-  <div class="card">
-    <textarea id="url" placeholder="Linki yapıştır (YouTube, web sitesi…)" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
-    <div class="preview" id="pv"><img id="pvImg" alt="" onerror="this.style.display='none'"><div class="pt" id="pvTxt"></div></div>
-    <div class="btns">
-      <button class="secondary" id="paste">Yapıştır</button>
-      <button class="primary" id="send">Gönder</button>
+  <div class="hero">
+    <button class="connect" id="connect">
+      <div class="ic">📺</div>
+      <div><b id="cTitle">TV'ye Bağlan</b><small id="cSub">TV ekranını öne getirir</small></div>
+    </button>
+    <button class="home" id="home"><span>⌂</span>Ana ekran</button>
+  </div>
+
+  <form class="search" id="sform" autocomplete="off">
+    <img class="g" id="gIcon" alt="">
+    <input id="q" type="search" placeholder="Google'da ara" enterkeyhint="search" autocapitalize="off" autocorrect="off">
+  </form>
+  <div class="chips">
+    <button class="chip primary" id="sPhone">🔍 Telefonda ara</button>
+    <button class="chip" id="sTv">📺 TV'de Google</button>
+    <button class="chip" id="sYt"><img id="ytIcon" alt="">TV'de YouTube</button>
+  </div>
+
+  <div class="label">TV'ye gönder</div>
+  <div class="send">
+    <button class="bigbtn" id="paste">
+      <div class="ic">⇪</div>
+      <div><b>Kopyaladığım linki gönder</b><small>Safari'de Paylaş → Kopyala, sonra buraya dokun</small></div>
+    </button>
+    <div class="manual">
+      <input id="url" placeholder="veya linki yaz / yapıştır" autocapitalize="off" autocorrect="off" spellcheck="false">
+      <button id="send">Gönder</button>
     </div>
   </div>
+
+  <div class="label">Uygulamalar <span style="text-transform:none;font-weight:400">TV'de açar</span></div>
+  <div class="apps" id="apps"></div>
 
   <div class="label">Son gönderilenler</div>
   <div class="list" id="hist"></div>
 
   <div class="label">Ayarlar</div>
-  <div class="card" style="padding:4px 14px">
+  <div class="card">
     <div class="row"><span>TV kodu</span><input id="code" maxlength="12" placeholder="ABC123" autocapitalize="characters" autocorrect="off"></div>
-    <div class="row"><span>TV adresi</span><span class="muted" style="font-size:14px" id="tvurl"></span></div>
+    <div class="row"><span>TV adresi</span><span class="muted" style="font-size:13px" id="tvurl"></span></div>
   </div>
 
   <details>
-    <summary>⚡ Paylaş menüsüne ekle (Kısayol)</summary>
+    <summary>⚡ Safari'de "TV'ye Gönder" butonu (bir kerelik kurulum)</summary>
     <ol>
       <li><b>Kestirmeler</b> uygulamasını aç → sağ üstte <b>+</b>.</li>
-      <li>Ad: <b>TV'ye Gönder</b>. Altta ⓘ → <b>Paylaşma Ekranında Göster</b>'i aç, tür olarak <b>URL</b> ve <b>Metin</b> seç.</li>
-      <li><b>URL'nin İçeriğini Al</b> eylemini ekle. URL: <code id="postUrl">https://ntfy.sh/tvhome-KOD</code></li>
-      <li>Eylemi genişlet: Yöntem <b>POST</b>, İstek Gövdesi <b>JSON</b> → <b>Yeni Alan Ekle → Metin</b>: anahtar <code>url</code>, değer <b>Kestirme Girdisi</b>.</li>
-      <li>Bitti. Safari / YouTube / Google'da <b>Paylaş → TV'ye Gönder</b> de, TV'de 4 saniye sonra açılır.</li>
+      <li>Adını <b>TV'ye Gönder</b> yap. Altta ⓘ → <b>Paylaşma Ekranında Göster</b>'i aç (tür: URL, Metin).</li>
+      <li><b>URL'nin İçeriğini Al</b> eylemini ekle. URL: <code id="postUrl"></code></li>
+      <li>Eylemi genişlet: Yöntem <b>POST</b>, İstek Gövdesi <b>JSON</b> → Yeni Alan → <b>Metin</b>: anahtar <code>url</code>, değer <b>Kestirme Girdisi</b>.</li>
+      <li>Bitti. Google'da bulduğun sayfada <b>Paylaş → TV'ye Gönder</b>: TV'de açılır.</li>
+    </ol>
+  </details>
+  <details>
+    <summary>📺 TV ekranı kendiliğinden açılsın</summary>
+    <ol>
+      <li>TV'de Play Store'dan <b>Fully Kiosk Browser</b>'ı kur.</li>
+      <li>Ayarlar → Web Content Settings → <b>Start URL</b>: <code id="tvurl2"></code></li>
+      <li>Device Management → <b>Launch on Boot</b> açık. TV açılınca ekran gelir.</li>
+      <li>Telefondan "TV'ye Bağlan" ile öne getirme ve uygulamaları doğrudan açma için: Advanced Web Settings → <b>Enable JavaScript Interface (PLUS)</b>. Bu özellik Fully'nin ücretli PLUS lisansını ister.</li>
     </ol>
   </details>
 
   <div class="toast" id="toast"></div>
 
+<script src="apps.js"></script>
 <script>
-const NTFY="https://ntfy.sh";
+const NTFY=window.TVHOME_NTFY, APPS=window.TVHOME_APPS, icon=window.tvhomeIcon;
 const $=id=>document.getElementById(id);
 const store={
   get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch(e){return d;}},
   set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 };
-let code=store.get("tvcode","");
-let hist=store.get("hist",[]);
-
+let code=store.get("tvcode",""), hist=store.get("hist",[]);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const host=u=>{try{return new URL(u).hostname.replace(/^www\./,"");}catch(e){return "";}};
+function ytId(u){try{const x=new URL(u);
+  if(x.hostname.includes("youtu.be")) return x.pathname.slice(1).split("/")[0];
+  if(x.hostname.includes("youtube.com")){ if(x.searchParams.get("v")) return x.searchParams.get("v");
+    const m=x.pathname.match(/\/(shorts|live|embed)\/([\w-]{6,})/); if(m) return m[2]; }}catch(e){} return null;}
+const thumb=u=>{const id=ytId(u);return id?`https://i.ytimg.com/vi/${id}/hqdefault.jpg`:null;};
+function extract(t){ const m=(t||"").match(/https?:\/\/\S+/); if(m) return m[0];
+  t=(t||"").trim(); return /^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(t)?"https://"+t:null; }
 function base(){ return location.href.replace(/[#?].*$/,"").replace(/index\.html$/,""); }
-function refreshCode(){
+
+function toast(m){ const t=$("toast"); t.textContent=m; t.classList.add("show");
+  clearTimeout(toast.t); toast.t=setTimeout(()=>t.classList.remove("show"),2200); }
+
+// ---- settings ----
+function refresh(){
   $("code").value=code;
   $("dot").classList.toggle("ok",!!code);
-  $("sub").textContent=code?`TV: ${code}`:"TV kodu girilmedi — aşağıdan ekle";
+  $("sub").textContent=code?`TV ${code}`:"Kod yok";
   $("postUrl").textContent=`${NTFY}/tvhome-${code||"KOD"}`;
-  $("tvurl").textContent=(base()+"tv.html").replace(/^https?:\/\//,"");
+  const tv=(base()+"tv.html"); $("tvurl").textContent=tv.replace(/^https?:\/\//,""); $("tvurl2").textContent=tv;
 }
-$("code").addEventListener("input",e=>{
-  code=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,""); e.target.value=code;
-  store.set("tvcode",code); refreshCode();
-});
+$("code").addEventListener("input",e=>{ code=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,""); e.target.value=code; store.set("tvcode",code); refresh(); });
 
-function ytId(u){
-  try{const x=new URL(u);
-    if(x.hostname.includes("youtu.be")) return x.pathname.slice(1).split("/")[0];
-    if(x.hostname.includes("youtube.com")){
-      if(x.searchParams.get("v")) return x.searchParams.get("v");
-      const m=x.pathname.match(/\/(shorts|live|embed)\/([\w-]{6,})/); if(m) return m[2];
-    }}catch(e){}
-  return null;
-}
-function thumb(u){const id=ytId(u);return id?`https://i.ytimg.com/vi/${id}/hqdefault.jpg`:null;}
-function host(u){try{return new URL(u).hostname.replace(/^www\./,"");}catch(e){return "";}}
-function extract(text){
-  const m=(text||"").match(/https?:\/\/\S+/); if(m) return m[0];
-  const t=(text||"").trim();
-  if(/^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(t)) return "https://"+t;
-  return null;
-}
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
-
-function preview(){
-  const u=extract($("url").value);
-  $("pv").classList.toggle("show",!!u);
-  if(!u) return;
-  const th=thumb(u);
-  $("pvImg").style.display=th?"":"none"; if(th) $("pvImg").src=th;
-  $("pvTxt").textContent=u;
-}
-$("url").addEventListener("input",preview);
-
-function toast(msg){
-  const t=$("toast"); t.textContent=msg; t.classList.add("show");
-  clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),2200);
-}
-
-async function send(url){
-  if(!code){ toast("Önce TV kodunu gir"); $("code").focus(); return; }
-  if(!url){ toast("Geçerli bir link yok"); return; }
+// ---- sending ----
+async function post(obj,okMsg){
+  if(!code){ toast("Önce Ayarlar'dan TV kodunu gir"); $("code").scrollIntoView({behavior:"smooth"}); return false; }
   try{
-    const r=await fetch(`${NTFY}/tvhome-${code}`,{method:"POST",body:JSON.stringify({url,title:""})});
-    if(!r.ok) throw new Error(r.status);
-    if(navigator.vibrate) navigator.vibrate(15);
-    toast("✓ TV'ye gönderildi");
-    hist=[{url,ts:Date.now()},...hist.filter(h=>h.url!==url)].slice(0,15);
-    store.set("hist",hist); renderHist();
-    $("url").value=""; preview();
-  }catch(e){ toast("Gönderilemedi — internet?"); }
+    const r=await fetch(`${NTFY}/tvhome-${code}`,{method:"POST",body:JSON.stringify(obj)});
+    if(!r.ok) throw 0;
+    if(navigator.vibrate) navigator.vibrate(12);
+    okMsg && toast(okMsg); return true;
+  }catch(e){ toast("Gönderilemedi — internet?"); return false; }
 }
-$("send").onclick=()=>send(extract($("url").value));
+async function sendUrl(url,now){
+  if(!url){ toast("Geçerli bir link yok"); return; }
+  if(await post({t:"open",url,now:!!now},"✓ TV'ye gönderildi")){
+    hist=[{url,ts:Date.now()},...hist.filter(h=>h.url!==url)].slice(0,15);
+    store.set("hist",hist); renderHist(); $("url").value="";
+  }
+}
+
+$("connect").onclick=async()=>{
+  if(await post({t:"wake"})){
+    $("connect").classList.add("done"); $("cTitle").textContent="Bağlandı"; $("cSub").textContent="TV ekranı öne geldi";
+    setTimeout(()=>{ $("connect").classList.remove("done"); $("cTitle").textContent="TV'ye Bağlan"; $("cSub").textContent="TV ekranını öne getirir"; },3000);
+  }
+};
+$("home").onclick=()=>post({t:"home"},"⌂ Ana ekran");
+$("send").onclick=()=>sendUrl(extract($("url").value));
+$("url").addEventListener("keydown",e=>{ if(e.key==="Enter") sendUrl(extract($("url").value)); });
 $("paste").onclick=async()=>{
-  try{ const t=await navigator.clipboard.readText(); $("url").value=t; preview();
-       const u=extract(t); if(u) send(u); else toast("Panoda link yok"); }
-  catch(e){ toast("Pano okunamadı, elle yapıştır"); $("url").focus(); }
+  try{ const t=await navigator.clipboard.readText(); const u=extract(t);
+       if(u) sendUrl(u); else toast("Panoda link yok"); }
+  catch(e){ toast("Pano okunamadı — aşağıya yapıştır"); $("url").focus(); }
 };
 
+// ---- search ----
+$("gIcon").src=icon("google.com"); $("ytIcon").src=icon("youtube.com");
+const q=()=>$("q").value.trim();
+function phoneSearch(){ if(!q()) return $("q").focus(); location.href="https://www.google.com/search?q="+encodeURIComponent(q()); }
+$("sform").onsubmit=e=>{ e.preventDefault(); phoneSearch(); };
+$("sPhone").onclick=phoneSearch;
+$("sTv").onclick=()=>{ if(!q()) return $("q").focus(); sendUrl("https://www.google.com/search?q="+encodeURIComponent(q()),true); };
+$("sYt").onclick=()=>{ if(!q()) return $("q").focus(); sendUrl("https://www.youtube.com/results?search_query="+encodeURIComponent(q()),true); };
+
+// ---- apps ----
+APPS.forEach(a=>{
+  const b=document.createElement("button"); b.className="app";
+  const src=a.img||(a.domain?icon(a.domain):null);
+  b.innerHTML=`<div class="icon" style="background:${a.bg}">${src?`<img src="${src}" alt="">`:`<span class="fb">${a.icon||a.name[0]}</span>`}</div>${esc(a.name)}`;
+  const im=b.querySelector("img"); if(im) im.onerror=()=>{ im.outerHTML=`<span class="fb">${esc(a.name[0])}</span>`; };
+  b.onclick=()=>post({t:"app",id:a.id},`${a.name} TV'de açılıyor`);
+  $("apps").appendChild(b);
+});
+
+// ---- history ----
 function renderHist(){
   const box=$("hist");
   if(!hist.length){ box.innerHTML=`<div class="empty">Henüz bir şey göndermedin</div>`; return; }
   box.innerHTML="";
   hist.forEach(h=>{
-    const d=document.createElement("div"); d.className="item";
-    const th=thumb(h.url);
-    d.innerHTML=`${th?`<img src="${th}" alt="">`:`<div class="ph">🔗</div>`}
-      <div class="meta"><div class="t">${esc(h.url)}</div><div class="h">${esc(host(h.url))}</div></div>
-      <button class="secondary">Tekrar</button>`;
-    d.querySelector("button").onclick=()=>send(h.url);
+    const d=document.createElement("div"); d.className="item"; const th=thumb(h.url);
+    d.innerHTML=`<div class="th" ${th?`style="background-image:url(${th})"`:""}>${th?"":`<img src="${icon(host(h.url))}" alt="">`}</div>
+      <div class="meta"><div class="t">${esc(h.title||h.url)}</div><div class="h">${esc(host(h.url))}</div></div>
+      <button>Tekrar</button>`;
+    d.querySelector("button").onclick=()=>sendUrl(h.url);
     box.appendChild(d);
   });
 }
 
-// ?u=... ile açılırsa otomatik gönder (kısayol alternatifi)
+// Safari'den geri dönünce "kopyaladığım linki gönder" butonunu vurgula
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="visible"){ const b=$("paste"); b.classList.remove("pulse"); void b.offsetWidth; b.classList.add("pulse"); }
+});
+
+// URL parametreleri: ?k=KOD (kodu ayarla), ?u=LINK (anında gönder)
 const qp=new URLSearchParams(location.search);
 if(qp.get("k")){ code=qp.get("k").toUpperCase(); store.set("tvcode",code); }
-refreshCode(); renderHist();
-if(qp.get("u")){ const u=extract(qp.get("u")); history.replaceState(null,"",base()); if(u) send(u); }
+refresh(); renderHist();
+if(qp.get("u")){ const u=extract(qp.get("u")); history.replaceState(null,"",base()); if(u) sendUrl(u); }
 </script>
 </body>
 </html>
