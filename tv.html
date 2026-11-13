@@ -147,6 +147,17 @@ body.row1 .dock{opacity:.35}
   background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.05));box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 0 0 1px rgba(255,255,255,.12),0 1vw 2vw rgba(0,0,0,.25)}
 .pair .hint{margin-top:5vh;font-size:1vw;color:rgba(255,255,255,.5)}
 .pair .hint b{color:rgba(255,255,255,.8);font-weight:600}
+
+/* ---------- Screensaver (aerial style) ---------- */
+.saver{position:fixed;inset:0;z-index:40;background:#000;opacity:0;pointer-events:none;transition:opacity 1.6s ease}
+.saver.on{opacity:1}
+.saver .ss{position:absolute;inset:-4%;background:center/cover no-repeat;opacity:0;transition:opacity 2.5s ease}
+.saver .ss.on{opacity:1;animation:drift 22s linear forwards}
+@keyframes drift{from{transform:scale(1.04) translate(1.5%,1%)}to{transform:scale(1.14) translate(-1.5%,-1%)}}
+.saver::after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.45),transparent 35%)}
+.saver .clk{position:absolute;left:5vw;bottom:7vh;z-index:2;text-shadow:0 2px 24px rgba(0,0,0,.45)}
+.saver .clk b{display:block;font-size:6.4vw;font-weight:700;letter-spacing:-.03em;line-height:1}
+.saver .clk span{font-size:1.4vw;font-weight:500;color:rgba(255,255,255,.85)}
 </style>
 </head>
 <body>
@@ -185,6 +196,9 @@ body.row1 .dock{opacity:.35}
     <div class="bar" id="nBarW"><i id="nBar"></i></div>
   </div>
 </div>
+
+<div class="saver" id="saver"><div class="ss" id="ssA"></div><div class="ss" id="ssB"></div>
+  <div class="clk"><b id="ssT"></b><span id="ssD"></span></div></div>
 
 <div class="pair hide" id="pair">
   <div class="box">
@@ -344,6 +358,8 @@ function keyName(e){const k=e.key; if(k&&k!=="Unidentified"&&k.length>1) return 
 window.addEventListener("keydown",e=>{
   const k=keyName(e);
   const stop=()=>{e.preventDefault();e.stopPropagation();};
+  if(stopSaver()){ stop(); poke(); return; }
+  poke();
   if(!$("pair").classList.contains("hide")){ if(k==="Enter"){stop();setPaired();} return; }
   if(pending && k==="Escape"){ stop(); cancelPending(); return; }
   if(k==="Escape" && pos.row===1){ stop(); focusAt(0,lastCol[0]); return; }
@@ -354,6 +370,26 @@ window.addEventListener("keydown",e=>{
 window.addEventListener("scroll",()=>window.scrollTo(0,0),{passive:true});
 document.addEventListener("wheel",e=>e.preventDefault(),{passive:false});
 window.addEventListener("load",()=>{try{window.focus();}catch(e){}});
+
+
+/* ---------- Screensaver ---------- */
+const SAVER_AFTER_MS=5*60*1000;
+let idleT=null, saverOn=false, ssI=0, ssTimer=null, ssFront="ssA";
+function ssImage(){ ssI++; return `https://picsum.photos/seed/aerial-${today}-${ssI}/1920/1080`; }
+function ssNext(){
+  const url=ssImage(), img=new Image();
+  img.onload=()=>{ if(!saverOn) return; const back=ssFront==="ssA"?"ssB":"ssA";
+    $(back).style.backgroundImage=`url("${url}")`; $(back).classList.remove("on"); void $(back).offsetWidth; $(back).classList.add("on");
+    $(ssFront).classList.remove("on"); ssFront=back; };
+  img.src=url;
+}
+function ssClock(){ const n=new Date(); $("ssT").textContent=n.toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});
+  $("ssD").textContent=n.toLocaleDateString("tr-TR",{weekday:"long",day:"numeric",month:"long"}); }
+function startSaver(){ if(saverOn||pending) return; saverOn=true; ssClock(); ssNext(); $("saver").classList.add("on");
+  ssTimer=setInterval(()=>{ ssNext(); ssClock(); },20000); }
+function stopSaver(){ if(!saverOn) return false; saverOn=false; clearInterval(ssTimer); $("saver").classList.remove("on"); return true; }
+function poke(){ clearTimeout(idleT); idleT=setTimeout(startSaver,SAVER_AFTER_MS); }
+poke();
 
 /* ---------- Notifications ---------- */
 let pending=null, noteT=null;
@@ -385,6 +421,7 @@ function refocus(){ focusAt(pos.row, pos.col) || focusAt(0,lastCol[0]); }
 function incoming(msg){
   let d; try{d=JSON.parse(msg);}catch(e){d={url:String(msg).trim()};}
   if(!d) return;
+  stopSaver(); poke();
   setPaired();
   const t=d.t||"open";
   if(t==="wake"){ toFront(); note({title:"iPhone bağlandı",host:"Bu TV'yi iPhone'undan kontrol edebilirsin",glyph:"✓"}); return; }
