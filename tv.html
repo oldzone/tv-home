@@ -356,15 +356,23 @@ function move(dr,dc){
   if(dr){ let r=pos.row+dr; while(r>=0&&r<=2){ if(rowEls(r).length){ focusAt(r, r===0?0:Math.min(pos.col,rowEls(r).length-1)); return;} r+=dr; } return; }
   focusAt(pos.row,pos.col+dc);
 }
-document.addEventListener("keydown",e=>{
-  const k=e.key;
-  if(pending && (k==="Escape"||k==="Backspace"||k==="GoBack"||e.keyCode===4)){ e.preventDefault(); cancelPending(); return; }
-  if(k==="ArrowRight"){ e.preventDefault(); move(0,1); }
-  else if(k==="ArrowLeft"){ e.preventDefault(); move(0,-1); }
-  else if(k==="ArrowDown"){ e.preventDefault(); move(1,0); }
-  else if(k==="ArrowUp"){ e.preventDefault(); move(-1,0); }
-  else if(k==="Enter"||k===" "){ e.preventDefault(); const el=document.querySelector(".focus"); el&&el.click(); }
-});
+// Android WebView / Fully bazen key yerine sadece keyCode gönderir: ikisini de destekle
+const KEYMAP={37:"ArrowLeft",38:"ArrowUp",39:"ArrowRight",40:"ArrowDown",21:"ArrowLeft",19:"ArrowUp",22:"ArrowRight",20:"ArrowDown",
+  13:"Enter",23:"Enter",66:"Enter",160:"Enter",27:"Escape",4:"Escape",8:"Escape"};
+function keyName(e){ const k=e.key; if(k && k!=="Unidentified" && k.length>1) return k==="Backspace"||k==="GoBack"||k==="BrowserBack"?"Escape":k; return KEYMAP[e.keyCode]||k; }
+function onKey(e){
+  const k=keyName(e);
+  if(pending && k==="Escape"){ e.preventDefault(); e.stopPropagation(); cancelPending(); return; }
+  const map={ArrowRight:[0,1],ArrowLeft:[0,-1],ArrowDown:[1,0],ArrowUp:[-1,0]};
+  if(map[k]){ e.preventDefault(); e.stopPropagation(); move(map[k][0],map[k][1]); }
+  else if(k==="Enter"||k===" "){ e.preventDefault(); e.stopPropagation(); const el=document.querySelector(".focus"); el&&el.click(); }
+}
+window.addEventListener("keydown",onKey,true);
+// Sayfa kaymasın: her şey sabit, kaydırmayı tamamen engelle
+window.addEventListener("scroll",()=>window.scrollTo(0,0),{passive:true});
+document.addEventListener("wheel",e=>e.preventDefault(),{passive:false});
+// WebView odağını sayfaya al
+window.addEventListener("load",()=>{ try{ window.focus(); }catch(e){} });
 focusAt(1,0);
 </script>
 </body>
