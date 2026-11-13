@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TV'ye Gönder">
+<meta name="theme-color" content="#000000">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>TV'ye Gönder</title>
+<style>
+  :root{
+    --bg:#f2f2f7; --card:#fff; --fg:#000; --muted:#8e8e93; --sep:rgba(60,60,67,.18);
+    --accent:#0a84ff; --field:#e9e9ee; --ok:#34c759; --err:#ff3b30;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --bg:#000; --card:#1c1c1e; --fg:#fff; --muted:#8e8e93; --sep:rgba(84,84,88,.6); --field:#2c2c2e; }
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{background:var(--bg);color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  body{padding:calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 24px)}
+  h1{font-size:34px;font-weight:700;letter-spacing:.01em;margin:8px 4px 4px}
+  .sub{color:var(--muted);font-size:15px;margin:0 4px 18px;display:flex;align-items:center;gap:8px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+  .dot.ok{background:var(--ok)}
+  .card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:22px}
+  .label{font-size:13px;text-transform:uppercase;color:var(--muted);margin:0 4px 6px;letter-spacing:.02em}
+  textarea{width:100%;min-height:92px;border:0;border-radius:10px;background:var(--field);color:var(--fg);
+    font:inherit;font-size:17px;padding:12px;resize:none;outline:none}
+  .btns{display:flex;gap:10px;margin-top:12px}
+  button{font:inherit;border:0;border-radius:12px;padding:14px 12px;font-size:17px;font-weight:600;cursor:pointer;flex:1;
+    transition:transform .1s,opacity .2s}
+  button:active{transform:scale(.97);opacity:.85}
+  .primary{background:var(--accent);color:#fff}
+  .secondary{background:var(--field);color:var(--accent)}
+  .preview{display:none;margin-top:12px;gap:12px;align-items:center}
+  .preview.show{display:flex}
+  .preview img{width:112px;aspect-ratio:16/9;object-fit:cover;border-radius:8px;background:var(--field)}
+  .preview .pt{font-size:14px;color:var(--muted);word-break:break-all;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+  .list{background:var(--card);border-radius:14px;overflow:hidden;margin-bottom:22px}
+  .item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:.5px solid var(--sep)}
+  .item:last-child{border-bottom:0}
+  .item img,.item .ph{width:64px;aspect-ratio:16/9;border-radius:6px;object-fit:cover;background:var(--field);flex:0 0 auto;
+    display:flex;align-items:center;justify-content:center;font-size:18px}
+  .item .meta{flex:1;min-width:0}
+  .item .t{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .item .h{font-size:12px;color:var(--muted)}
+  .item button{flex:0 0 auto;padding:8px 12px;font-size:14px;border-radius:16px}
+  .empty{padding:16px;color:var(--muted);font-size:15px;text-align:center}
+  .row{display:flex;align-items:center;justify-content:space-between;padding:12px 2px;border-bottom:.5px solid var(--sep);font-size:17px}
+  .row:last-child{border-bottom:0}
+  .row input{border:0;background:transparent;color:var(--fg);font:inherit;font-size:17px;text-align:right;
+    text-transform:uppercase;letter-spacing:.15em;width:150px;outline:none}
+  .muted{color:var(--muted)}
+  details{background:var(--card);border-radius:14px;padding:14px;margin-bottom:22px}
+  summary{font-size:17px;font-weight:600;list-style:none;cursor:pointer}
+  summary::-webkit-details-marker{display:none}
+  details ol{margin:12px 0 0 20px;font-size:15px;line-height:1.5}
+  details li{margin-bottom:8px}
+  code{background:var(--field);padding:2px 6px;border-radius:6px;font-size:13px;word-break:break-all}
+  .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 24px);transform:translate(-50%,250%);opacity:0;
+    background:rgba(40,40,42,.92);color:#fff;padding:12px 18px;border-radius:24px;font-size:15px;font-weight:600;
+    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);transition:transform .35s cubic-bezier(.2,.9,.2,1);
+    display:flex;align-items:center;gap:8px;white-space:nowrap}
+  .toast.show{transform:translate(-50%,0);opacity:1}
+</style>
+</head>
+<body>
+  <h1>TV'ye Gönder</h1>
+  <div class="sub"><span class="dot" id="dot"></span><span id="sub">TV kodu girilmedi</span></div>
+
+  <div class="label">Link</div>
+  <div class="card">
+    <textarea id="url" placeholder="Linki yapıştır (YouTube, web sitesi…)" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
+    <div class="preview" id="pv"><img id="pvImg" alt=""><div class="pt" id="pvTxt"></div></div>
+    <div class="btns">
+      <button class="secondary" id="paste">Yapıştır</button>
+      <button class="primary" id="send">Gönder</button>
+    </div>
+  </div>
+
+  <div class="label">Son gönderilenler</div>
+  <div class="list" id="hist"></div>
+
+  <div class="label">Ayarlar</div>
+  <div class="card" style="padding:4px 14px">
+    <div class="row"><span>TV kodu</span><input id="code" maxlength="12" placeholder="ABC123" autocapitalize="characters" autocorrect="off"></div>
+    <div class="row"><span>TV adresi</span><span class="muted" style="font-size:14px" id="tvurl"></span></div>
+  </div>
+
+  <details>
+    <summary>⚡ Paylaş menüsüne ekle (Kısayol)</summary>
+    <ol>
+      <li><b>Kestirmeler</b> uygulamasını aç → sağ üstte <b>+</b>.</li>
+      <li>Ad: <b>TV'ye Gönder</b>. Altta ⓘ → <b>Paylaşma Ekranında Göster</b>'i aç, tür olarak <b>URL</b> ve <b>Metin</b> seç.</li>
+      <li><b>URL'nin İçeriğini Al</b> eylemini ekle. URL: <code id="postUrl">https://ntfy.sh/tvhome-KOD</code></li>
+      <li>Eylemi genişlet: Yöntem <b>POST</b>, İstek Gövdesi <b>JSON</b> → <b>Yeni Alan Ekle → Metin</b>: anahtar <code>url</code>, değer <b>Kestirme Girdisi</b>.</li>
+      <li>Bitti. Safari / YouTube / Google'da <b>Paylaş → TV'ye Gönder</b> de, TV'de 4 saniye sonra açılır.</li>
+    </ol>
+  </details>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+const NTFY="https://ntfy.sh";
+const $=id=>document.getElementById(id);
+const store={
+  get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v);}catch(e){return d;}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+};
+let code=store.get("tvcode","");
+let hist=store.get("hist",[]);
+
+function base(){ return location.href.replace(/[#?].*$/,"").replace(/index\.html$/,""); }
+function refreshCode(){
+  $("code").value=code;
+  $("dot").classList.toggle("ok",!!code);
+  $("sub").textContent=code?`TV: ${code}`:"TV kodu girilmedi — aşağıdan ekle";
+  $("postUrl").textContent=`${NTFY}/tvhome-${code||"KOD"}`;
+  $("tvurl").textContent=(base()+"tv.html").replace(/^https?:\/\//,"");
+}
+$("code").addEventListener("input",e=>{
+  code=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,""); e.target.value=code;
+  store.set("tvcode",code); refreshCode();
+});
+
+function ytId(u){
+  try{const x=new URL(u);
+    if(x.hostname.includes("youtu.be")) return x.pathname.slice(1).split("/")[0];
+    if(x.hostname.includes("youtube.com")){
+      if(x.searchParams.get("v")) return x.searchParams.get("v");
+      const m=x.pathname.match(/\/(shorts|live|embed)\/([\w-]{6,})/); if(m) return m[2];
+    }}catch(e){}
+  return null;
+}
+function thumb(u){const id=ytId(u);return id?`https://i.ytimg.com/vi/${id}/hqdefault.jpg`:null;}
+function host(u){try{return new URL(u).hostname.replace(/^www\./,"");}catch(e){return "";}}
+function extract(text){
+  const m=(text||"").match(/https?:\/\/\S+/); if(m) return m[0];
+  const t=(text||"").trim();
+  if(/^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(t)) return "https://"+t;
+  return null;
+}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+
+function preview(){
+  const u=extract($("url").value);
+  $("pv").classList.toggle("show",!!u);
+  if(!u) return;
+  const th=thumb(u);
+  $("pvImg").style.display=th?"":"none"; if(th) $("pvImg").src=th;
+  $("pvTxt").textContent=u;
+}
+$("url").addEventListener("input",preview);
+
+function toast(msg){
+  const t=$("toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove("show"),2200);
+}
+
+async function send(url){
+  if(!code){ toast("Önce TV kodunu gir"); $("code").focus(); return; }
+  if(!url){ toast("Geçerli bir link yok"); return; }
+  try{
+    const r=await fetch(`${NTFY}/tvhome-${code}`,{method:"POST",body:JSON.stringify({url,title:""})});
+    if(!r.ok) throw new Error(r.status);
+    if(navigator.vibrate) navigator.vibrate(15);
+    toast("✓ TV'ye gönderildi");
+    hist=[{url,ts:Date.now()},...hist.filter(h=>h.url!==url)].slice(0,15);
+    store.set("hist",hist); renderHist();
+    $("url").value=""; preview();
+  }catch(e){ toast("Gönderilemedi — internet?"); }
+}
+$("send").onclick=()=>send(extract($("url").value));
+$("paste").onclick=async()=>{
+  try{ const t=await navigator.clipboard.readText(); $("url").value=t; preview();
+       const u=extract(t); if(u) send(u); else toast("Panoda link yok"); }
+  catch(e){ toast("Pano okunamadı, elle yapıştır"); $("url").focus(); }
+};
+
+function renderHist(){
+  const box=$("hist");
+  if(!hist.length){ box.innerHTML=`<div class="empty">Henüz bir şey göndermedin</div>`; return; }
+  box.innerHTML="";
+  hist.forEach(h=>{
+    const d=document.createElement("div"); d.className="item";
+    const th=thumb(h.url);
+    d.innerHTML=`${th?`<img src="${th}" alt="">`:`<div class="ph">🔗</div>`}
+      <div class="meta"><div class="t">${esc(h.url)}</div><div class="h">${esc(host(h.url))}</div></div>
+      <button class="secondary">Tekrar</button>`;
+    d.querySelector("button").onclick=()=>send(h.url);
+    box.appendChild(d);
+  });
+}
+
+// ?u=... ile açılırsa otomatik gönder (kısayol alternatifi)
+const qp=new URLSearchParams(location.search);
+if(qp.get("k")){ code=qp.get("k").toUpperCase(); store.set("tvcode",code); }
+refreshCode(); renderHist();
+if(qp.get("u")){ const u=extract(qp.get("u")); history.replaceState(null,"",base()); if(u) send(u); }
+</script>
+</body>
+</html>
