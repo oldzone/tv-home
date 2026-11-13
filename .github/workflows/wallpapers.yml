@@ -1,0 +1,38 @@
+name: Günün manzaraları
+
+on:
+  schedule:
+    - cron: '17 3 * * *'   # her gün 06:17 (İstanbul)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bing günün fotoğraflarını al
+        run: |
+          set -e
+          for idx in 0 7; do
+            curl -fsSL "https://www.bing.com/HPImageArchive.aspx?format=js&idx=${idx}&n=8&mkt=tr-TR" -o "bing_${idx}.json"
+          done
+          jq -s '[.[].images[] | {base:("https://www.bing.com"+.urlbase), title:.title, copyright:.copyright, date:.startdate}]' bing_0.json bing_7.json > new.json
+          if [ -f wallpapers.json ]; then
+            jq -s '(.[0] + .[1]) | unique_by(.base) | sort_by(.date) | reverse | .[0:40]' new.json wallpapers.json > merged.json
+          else
+            jq 'unique_by(.base) | sort_by(.date) | reverse' new.json > merged.json
+          fi
+          mv merged.json wallpapers.json
+          rm -f bing_*.json new.json
+          jq length wallpapers.json
+
+      - name: Kaydet
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add wallpapers.json
+          git diff --cached --quiet || (git commit -m "Günün manzaraları güncellendi" && git push)

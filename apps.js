@@ -13,3 +13,24 @@ window.TVHOME_APPS = [
 ];
 window.TVHOME_NTFY = "https://ntfy.sh";
 window.tvhomeIcon = d => `https://www.google.com/s2/favicons?domain=${d}&sz=256`;
+
+// Günün manzaraları: GitHub her gün Bing fotoğraflarını wallpapers.json'a yazar.
+// Liste yoksa yedek olarak rastgele manzara fotoğrafı kullanılır.
+window.tvhomeWallpapers = async function(){
+  const fallback = () => Array.from({length:8},(_,i)=>{
+    const s=new Date().toISOString().slice(0,10)+"-"+i;
+    return {tv:`https://picsum.photos/seed/tvh-${s}/1920/1080`, phone:`https://picsum.photos/seed/tvh-${s}/1080/1920`, title:"", place:""};
+  });
+  try{
+    const r = await fetch("wallpapers.json?d="+new Date().toISOString().slice(0,10), {cache:"no-cache"});
+    if(!r.ok) return fallback();
+    const list = await r.json();
+    if(!Array.isArray(list) || !list.length) return fallback();
+    return list.map(w=>({
+      tv: w.base+"_1920x1080.jpg",
+      phone: w.base+"_1080x1920.jpg",
+      title: w.title||"",
+      place: String(w.copyright||"").split(" (©")[0]
+    }));
+  }catch(e){ return fallback(); }
+};

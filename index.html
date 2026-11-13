@@ -12,277 +12,203 @@
 <link rel="manifest" href="manifest.webmanifest">
 <title>TV</title>
 <style>
-:root{
-  --bg:#000; --g1:#1c1c1e; --g2:#2c2c2e; --g3:#3a3a3c; --fill:rgba(118,118,128,.24);
-  --label:#fff; --l2:rgba(235,235,245,.6); --l3:rgba(235,235,245,.3); --sep:rgba(84,84,88,.6);
-  --blue:#0a84ff; --green:#30d158; --red:#ff453a;
-  --ease:cubic-bezier(.25,.9,.3,1);
-}
+:root{--ease:cubic-bezier(.25,.9,.3,1);--blue:#0a84ff;--green:#30d158;--red:#ff453a}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{background:var(--bg);color:var(--label);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter",system-ui,sans-serif;
-  -webkit-font-smoothing:antialiased;-webkit-user-select:none;user-select:none}
-body{padding:calc(env(safe-area-inset-top) + 8px) 16px calc(env(safe-area-inset-bottom) + 96px);min-height:100vh;background:transparent}
 html{background:#000}
-button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+body{color:#fff;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+  -webkit-user-select:none;user-select:none;min-height:100vh;padding:calc(env(safe-area-inset-top) + 10px) 16px calc(env(safe-area-inset-bottom) + 24px)}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;text-align:left}
 input{font:inherit;color:inherit;border:0;background:none;outline:none;-webkit-user-select:text;user-select:text}
 svg{display:block}
-.tap{transition:transform .18s var(--ease),opacity .18s}
-.tap:active{transform:scale(.96);opacity:.75}
+.tap{transition:transform .2s var(--ease),opacity .2s}.tap:active{transform:scale(.96);opacity:.85}
 
+/* Wallpaper */
+.wall{position:fixed;inset:0;z-index:-2;background:#0b0d14}
+.wall .w{position:absolute;inset:-2%;background:center/cover no-repeat;opacity:0;transition:opacity 1.6s ease}
+.wall .w.on{opacity:1}
+.shade{position:fixed;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.28),transparent 30%,transparent 55%,rgba(0,0,0,.5))}
 
-/* ---------- Liquid Glass (iOS 26) ---------- */
-.ambient{position:fixed;inset:-20%;z-index:-1;pointer-events:none;
-  background:radial-gradient(40% 30% at 20% 15%,#2a4bd7aa,transparent 70%),radial-gradient(35% 28% at 85% 25%,#9b3fd188,transparent 70%),
-  radial-gradient(45% 35% at 60% 85%,#0f8f9a77,transparent 70%),#000;filter:blur(20px);animation:amb 30s ease-in-out infinite alternate}
-@keyframes amb{to{transform:translate(-4%,3%) scale(1.06)}}
-.lg{position:relative;isolation:isolate;
-  background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.04));
-  backdrop-filter:blur(22px) saturate(190%);-webkit-backdrop-filter:blur(22px) saturate(190%);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 -1px 0 rgba(255,255,255,.06),0 8px 30px rgba(0,0,0,.28)}
-.lg::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
-  background:linear-gradient(135deg,rgba(255,255,255,.7),rgba(255,255,255,.05) 35%,rgba(255,255,255,.04) 65%,rgba(255,255,255,.45));
-  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
-.lg.tint{background:linear-gradient(180deg,rgba(10,132,255,.85),rgba(10,100,230,.7))}
-.lg.tint-g{background:linear-gradient(180deg,rgba(48,209,88,.85),rgba(36,170,70,.75))}
+/* Liquid glass */
+.lg{position:relative;background:linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,.07));
+  backdrop-filter:blur(26px) saturate(180%);-webkit-backdrop-filter:blur(26px) saturate(180%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 0 0 1px rgba(255,255,255,.14),0 10px 30px rgba(0,0,0,.2)}
 
-/* bottom search bar (iOS 26 style) */
-.bar{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 10px);z-index:30;display:flex;flex-direction:column-reverse;gap:10px}
-.bar .field{height:52px;border-radius:26px;padding:0 8px 0 18px;background:none}
-.bar #suggest{margin:0;border-radius:24px;overflow:hidden;background:rgba(28,28,32,.78);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%)}
+/* Top: date + big clock */
+.top{position:relative;text-align:center;padding-top:28px;text-shadow:0 2px 16px rgba(0,0,0,.3)}
+.top .d{font-size:17px;font-weight:600;opacity:.92}
+.top b{display:block;font-size:84px;font-weight:700;letter-spacing:-.03em;line-height:1;margin-top:2px}
+.gear{position:absolute;right:0;top:0;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.gear svg{width:21px;height:21px}
 
-/* Nav */
-.nav{display:flex;align-items:flex-end;justify-content:space-between;padding:6px 4px 2px}
-.nav h1{font-size:34px;font-weight:700;letter-spacing:.012em;line-height:1.1}
-.circ{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:4px}
-.circ svg{width:21px;height:21px;color:#fff}
-.substatus{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--l2);padding:2px 4px 18px}
-.substatus i{width:7px;height:7px;border-radius:50%;background:var(--l3)}
-.substatus i.on{background:var(--green)}
+/* Widgets */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+.w{border-radius:26px;padding:16px}
+.span{grid-column:span 2}
+.k{font-size:12px;font-weight:600;letter-spacing:.06em;opacity:.82;text-transform:uppercase;display:flex;align-items:center;gap:6px}
+.k i{width:7px;height:7px;border-radius:50%;background:#ff9f0a}.k i.on{background:var(--green)}
+.t{font-size:22px;font-weight:700;margin-top:4px;line-height:1.2}
+.btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;padding:10px 16px;border-radius:22px}
+.btn svg{width:17px;height:17px}
+.btn.w1{background:#fff;color:#000}
+.btn.g{background:rgba(255,255,255,.22)}
+.sq{height:132px;display:flex;flex-direction:column;justify-content:space-between;text-align:left;width:100%}
+.ic{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
+.ic svg{width:20px;height:20px}
+.sq .t{font-size:18px}
+.apps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 10px}
+.app{display:flex;flex-direction:column;align-items:center;gap:6px;width:100%}
+.app .sq2{position:relative;width:100%;aspect-ratio:1;border-radius:24%;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 6px 14px rgba(0,0,0,.3)}
+.app .sq2::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 0 0 1px rgba(255,255,255,.15);background:linear-gradient(180deg,rgba(255,255,255,.22),transparent 42%)}
+.app img{width:56%;height:56%;object-fit:contain}
+.app .wd{font-size:12px;font-weight:800}
+.app .sq2 svg{width:46%;height:46%}
+.app .lb{font-size:11px;font-weight:500;opacity:.92;white-space:nowrap;text-shadow:0 1px 6px rgba(0,0,0,.4)}
+.li{display:flex;align-items:center;gap:10px;margin-top:10px;width:100%}
+.li .th{width:60px;aspect-ratio:16/9;border-radius:7px;background:rgba(255,255,255,.18) center/cover;flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+.li .th img{width:18px;height:18px}
+.li .tt{flex:1;min-width:0}
+.li .a{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li .b{font-size:12px;opacity:.72}
+.li .re{font-size:13px;font-weight:600;padding:6px 10px;border-radius:14px;background:rgba(255,255,255,.2)}
+.empty{font-size:14px;opacity:.8;margin-top:8px;line-height:1.4}
 
-/* Device card */
-.device{border-radius:28px;padding:18px;margin-bottom:8px}
-.device .top{position:relative;display:flex;align-items:center;gap:14px}
-.device .glyph{width:52px;height:52px;border-radius:16px;background:rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center}
-.device .glyph svg{width:28px;height:28px;color:#fff}
-.device .nm{font-size:20px;font-weight:600;letter-spacing:-.01em}
-.device .st{font-size:14px;color:var(--l2);margin-top:2px}
-.device .acts{position:relative;display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:18px}
-.btn{height:52px;border-radius:26px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:17px;font-weight:600}
-.btn svg{width:20px;height:20px}
-.btn.glass{width:52px}
+.credit{position:relative;margin:18px auto 0;width:max-content;font-size:12px;padding:7px 12px;border-radius:16px;
+  white-space:nowrap;display:flex;gap:6px;align-items:center;max-width:90vw;z-index:5}
+.credit span{overflow:hidden;text-overflow:ellipsis}
+.credit svg{width:14px;height:14px;flex:0 0 auto}
 
-/* Search field */
-.field{display:flex;align-items:center;gap:8px;height:44px;border-radius:12px;padding:0 10px 0 12px}
-.field svg{width:18px;height:18px;color:var(--l2);flex:0 0 auto}
-.field input{flex:1;height:100%;font-size:17px;min-width:0}
-.field input::placeholder{color:var(--l2)}
-.field .paste{color:var(--blue);font-size:15px;font-weight:500;padding:6px 4px}
-.field .clear{width:20px;height:20px;border-radius:50%;background:var(--l3);display:none;align-items:center;justify-content:center}
-.field .clear svg{width:10px;height:10px;color:#000}
-.field.has .clear{display:flex} .field.has .paste{display:none}
-
-/* Grouped list */
-.group{border-radius:22px;overflow:hidden}
-.rowi{display:flex;align-items:center;gap:12px;padding:0 14px;min-height:52px;width:100%;text-align:left}
-.rowi + .rowi .rb{border-top:.5px solid rgba(255,255,255,.12)}
-.rowi .ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
-.rowi .ic svg{width:18px;height:18px;color:#fff}
-.rowi .rb{flex:1;display:flex;align-items:center;gap:10px;min-height:52px;min-width:0}
-.rowi .tx{flex:1;min-width:0}
-.rowi .t1{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rowi .t2{font-size:13px;color:var(--l2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
-.rowi .chev{width:8px;height:14px;color:var(--l3);flex:0 0 auto}
-.rowi .val{color:var(--l2);font-size:17px}
-.rowi:active{background:rgba(255,255,255,.08)}
-#suggest{margin-top:10px;display:none}
-#suggest.show{display:block;animation:drop .25s var(--ease)}
-@keyframes drop{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
-
-/* Section header */
-.sh{display:flex;align-items:baseline;justify-content:space-between;margin:28px 4px 10px}
-.sh h2{font-size:22px;font-weight:700;letter-spacing:.01em}
-.sh span{font-size:15px;color:var(--l2)}
-
-/* Apps */
-.apps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px 14px;padding:0 2px}
-.app{display:flex;flex-direction:column;align-items:center;gap:7px}
-.app .sq{position:relative;width:100%;aspect-ratio:1;border-radius:24%;display:flex;align-items:center;justify-content:center;overflow:hidden;
-  box-shadow:0 6px 16px rgba(0,0,0,.35)}
-.app .sq::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 0 0 1px rgba(255,255,255,.14);
-  background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,0) 40%)}
-.app .sq img{width:56%;height:56%;object-fit:contain}
-.app .sq .w{font-size:13px;font-weight:700}
-.app .sq svg{width:46%;height:46%;color:#fff}
-.app .lb{font-size:12px;color:rgba(255,255,255,.8);white-space:nowrap}
-
-/* Recents */
-.rec .th{width:64px;aspect-ratio:16/9;border-radius:6px;background:var(--g3) center/cover;flex:0 0 auto;display:flex;align-items:center;justify-content:center;margin:10px 0}
-.rec .th img{width:20px;height:20px}
-.rec .again{color:var(--blue);font-size:15px;font-weight:500;padding:6px 0 6px 8px}
-.emptyc{padding:22px 16px;text-align:center;color:var(--l2);font-size:15px;line-height:1.4}
-
-/* HUD toast */
-.hud{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 10px);z-index:50;transform:translate(-50%,-160%);
-  display:flex;align-items:center;gap:10px;padding:10px 18px 10px 12px;border-radius:30px;
-  transition:transform .5s var(--ease);font-size:15px;font-weight:600;white-space:nowrap}
+/* HUD */
+.hud{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);z-index:50;transform:translate(-50%,-180%);display:flex;align-items:center;gap:10px;
+  padding:10px 18px 10px 10px;border-radius:30px;transition:transform .5s var(--ease);font-size:15px;font-weight:600;white-space:nowrap;background:rgba(40,40,44,.6)!important}
 .hud.show{transform:translate(-50%,0)}
 .hud .hi{width:28px;height:28px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center}
-.hud .hi.err{background:var(--red)}
-.hud .hi svg{width:15px;height:15px;color:#fff}
+.hud .hi.err{background:var(--red)}.hud .hi svg{width:15px;height:15px}
 
-/* Sheet */
-.scrim{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .3s}
+/* Sheets */
+.scrim{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .3s}
 .scrim.show{opacity:1;pointer-events:auto}
-.sheet{position:fixed;left:8px;right:8px;bottom:8px;z-index:41;border-radius:34px;background:rgba(30,30,32,.72);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 20px 60px rgba(0,0,0,.5);
-  padding:8px 16px calc(env(safe-area-inset-bottom) + 24px);max-height:88vh;overflow:auto;transform:translateY(105%);transition:transform .45s var(--ease)}
+.sheet{position:fixed;left:8px;right:8px;bottom:8px;z-index:41;border-radius:34px;padding:10px 16px calc(env(safe-area-inset-bottom) + 20px);max-height:86vh;overflow:auto;
+  background:rgba(28,28,32,.88);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 20px 60px rgba(0,0,0,.5);transform:translateY(110%);transition:transform .45s var(--ease)}
 .sheet.show{transform:none}
-.grab{width:36px;height:5px;border-radius:3px;background:var(--g3);margin:0 auto 10px}
-.sheet .hd{display:flex;align-items:center;justify-content:space-between;margin:4px 0 16px}
-.sheet .hd b{font-size:17px;font-weight:600}
-.sheet .hd button{color:var(--blue);font-size:17px;font-weight:600}
-.sheet .group{background:rgba(255,255,255,.07)}
-.sheet .cap{font-size:13px;color:var(--l2);text-transform:uppercase;margin:22px 14px 7px;letter-spacing:.02em}
-.sheet .note{font-size:13px;color:var(--l2);margin:8px 14px 0;line-height:1.4}
-.steps{counter-reset:s;padding:6px 14px 12px}
-.steps li{list-style:none;counter-increment:s;position:relative;padding:8px 0 8px 32px;font-size:15px;line-height:1.4;color:rgba(255,255,255,.9)}
-.steps li::before{content:counter(s);position:absolute;left:0;top:8px;width:22px;height:22px;border-radius:50%;background:var(--g3);
-  font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center}
-code{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:var(--g3);padding:2px 5px;border-radius:5px;word-break:break-all;-webkit-user-select:all;user-select:all}
+.grab{width:36px;height:5px;border-radius:3px;background:rgba(255,255,255,.3);margin:0 auto 12px}
+.sheet h3{font-size:20px;font-weight:700;margin:2px 4px 14px}
+.field{display:flex;align-items:center;gap:8px;height:50px;border-radius:16px;background:rgba(255,255,255,.12);padding:0 14px}
+.field svg{width:18px;height:18px;opacity:.7}
+.field input{flex:1;font-size:17px;min-width:0}
+.field input::placeholder{color:rgba(255,255,255,.5)}
+.opts{margin-top:12px;border-radius:18px;overflow:hidden;background:rgba(255,255,255,.08)}
+.opt{display:flex;align-items:center;gap:12px;padding:13px 14px;width:100%}
+.opt + .opt{border-top:.5px solid rgba(255,255,255,.12)}
+.opt .oi{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.opt .oi svg{width:18px;height:18px}
+.opt .o1{font-size:16px;font-weight:600}.opt .o2{font-size:13px;opacity:.65}
+.opt:active{background:rgba(255,255,255,.08)}
+.cap{font-size:13px;opacity:.65;text-transform:uppercase;margin:20px 6px 7px;letter-spacing:.03em}
+.card2{border-radius:18px;background:rgba(255,255,255,.08);padding:4px 14px}
+.row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;font-size:16px;gap:10px}
+.row + .row{border-top:.5px solid rgba(255,255,255,.12)}
+.row .v{opacity:.65}
+.steps{counter-reset:s;padding:6px 0}
+.steps li{list-style:none;counter-increment:s;position:relative;padding:7px 0 7px 32px;font-size:15px;line-height:1.4}
+.steps li::before{content:counter(s);position:absolute;left:0;top:7px;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.18);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+code{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:rgba(255,255,255,.14);padding:2px 5px;border-radius:5px;word-break:break-all;-webkit-user-select:all;user-select:all}
 
 /* Onboarding */
-.onb{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
-  padding:calc(env(safe-area-inset-top) + 20px) 28px calc(env(safe-area-inset-bottom) + 28px);
-  background:radial-gradient(520px 420px at 50% -10%,#1f3a7a,transparent 70%),#000;transition:opacity .45s,transform .45s var(--ease)}
-.onb.hide{opacity:0;transform:scale(1.05);pointer-events:none}
-.onb .logo{width:88px;height:88px;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,.05));display:flex;align-items:center;justify-content:center;
-  box-shadow:0 14px 40px rgba(0,0,0,.6),inset 0 0 0 .5px rgba(255,255,255,.15);margin-bottom:28px}
-.onb .logo svg{width:50px;height:50px;color:#fff}
-.onb h2{font-size:28px;font-weight:700}
-.onb p{color:var(--l2);font-size:17px;margin-top:10px;line-height:1.4}
-.boxes{position:relative;display:flex;gap:8px;margin:36px 0 32px}
-.boxes span{width:46px;height:58px;border-radius:16px;background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.04));box-shadow:inset 0 1px 0 rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;
-  font-size:26px;font-weight:600;transition:box-shadow .2s}
-.boxes span.cur{box-shadow:inset 0 0 0 2px var(--blue),inset 0 1px 0 rgba(255,255,255,.3)}
+.onb{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:28px;
+  background:rgba(0,0,0,.35);backdrop-filter:blur(30px) saturate(150%);-webkit-backdrop-filter:blur(30px) saturate(150%);transition:opacity .45s}
+.onb.hide{opacity:0;pointer-events:none}
+.onb h2{font-size:30px;font-weight:700}.onb p{font-size:17px;opacity:.85;margin-top:10px;line-height:1.4}
+.boxes{position:relative;display:flex;gap:8px;margin:34px 0 30px}
+.boxes span{width:46px;height:58px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:600;
+  background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,.08));box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+.boxes span.cur{box-shadow:inset 0 0 0 2px #fff}
 .boxes input{position:absolute;inset:0;opacity:0;font-size:16px}
-.onb .btn{width:100%;max-width:340px}
-.onb .btn:disabled{opacity:.35}
-.onb small{display:block;color:var(--l2);font-size:13px;margin-top:16px}
+.onb .go{width:100%;max-width:330px;justify-content:center;font-size:17px;padding:15px;border-radius:28px}
+.onb .go:disabled{opacity:.4}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute"><defs>
+<symbol id="i-home" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 11 12 4l8.5 7"/><path d="M6 9.5V19a1 1 0 0 0 1 1h3.5v-5h3v5H17a1 1 0 0 0 1-1V9.5"/></g></symbol>
+<symbol id="i-tv" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><rect x="2.5" y="4" width="19" height="12.5" rx="2.2"/><path d="M8 20h8M12 16.5V20"/></g></symbol>
+<symbol id="i-link" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></g></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></g></symbol>
+<symbol id="i-gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></g></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><path fill="currentColor" d="M8 5.5v13a1 1 0 0 0 1.5.86l10.4-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></symbol>
+<symbol id="i-globe" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.8 3.6 5.8 3.6 9S14.5 18.2 12 21c-2.5-2.8-3.6-5.8-3.6-9S9.5 5.8 12 3z"/></g></symbol>
+<symbol id="i-photo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3 16 5-5 4 4 3-3 6 6" stroke-linejoin="round"/></g></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></symbol>
+<symbol id="i-send" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 3 10 14"/><path d="M21 3l-7 18-4-7-7-4z"/></g></symbol>
+</defs></svg>
 
-<svg width="0" height="0" style="position:absolute">
-  <defs>
-    <symbol id="i-tv" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="12.5" rx="2.2"/><path d="M8 20h8M12 16.5V20"/></g></symbol>
-    <symbol id="i-home" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 11 12 4l8.5 7"/><path d="M6 9.5V19a1 1 0 0 0 1 1h3.5v-5h3v5H17a1 1 0 0 0 1-1V9.5"/></g></symbol>
-    <symbol id="i-search" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></g></symbol>
-    <symbol id="i-gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></g></symbol>
-    <symbol id="i-link" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></g></symbol>
-    <symbol id="i-play" viewBox="0 0 24 24"><path fill="currentColor" d="M8 5.5v13a1 1 0 0 0 1.5.86l10.4-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></symbol>
-    <symbol id="i-globe" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.8 3.6 5.8 3.6 9S14.5 18.2 12 21c-2.5-2.8-3.6-5.8-3.6-9S9.5 5.8 12 3z"/></g></symbol>
-    <symbol id="i-clip" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="5" y="4.5" width="14" height="16.5" rx="2.5"/><path d="M9 4.5V3.8A1.3 1.3 0 0 1 10.3 2.5h3.4A1.3 1.3 0 0 1 15 3.8v.7"/><path d="M9 11h6M9 15h4" stroke-linecap="round"/></g></symbol>
-    <symbol id="i-chev" viewBox="0 0 8 14"><path d="m1 1 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></symbol>
-    <symbol id="i-bolt" viewBox="0 0 24 24"><path fill="currentColor" d="M13.5 2 4.5 13.5h6L9.5 22l9-11.5h-6z"/></symbol>
-    <symbol id="i-key" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="8" cy="15" r="4.5"/><path d="m11.2 11.8 8.3-8.3M17 6l2.5 2.5M14.5 8.5 16.5 10.5"/></g></symbol>
-    <symbol id="i-power" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v8"/><path d="M6.3 6.6a8 8 0 1 0 11.4 0"/></g></symbol>
-  </defs>
-</svg>
+<div class="wall"><div class="w" id="wA"></div><div class="w" id="wB"></div></div>
+<div class="shade"></div>
 
-<div class="ambient"></div>
-
-<div class="nav">
-  <h1>TV</h1>
-  <button class="circ lg tap" id="openSet" aria-label="Ayarlar"><svg><use href="#i-gear"/></svg></button>
+<div class="top">
+  <button class="gear lg tap" id="openSet" aria-label="Ayarlar"><svg><use href="#i-gear"/></svg></button>
+  <div class="d" id="date"></div><b id="time">--:--</b>
 </div>
-<div class="substatus"><i id="dot"></i><span id="sub">Bağlı değil</span></div>
 
-<div class="device lg">
-  <div class="top">
-    <div class="glyph"><svg><use href="#i-tv"/></svg></div>
-    <div><div class="nm">Salon TV</div><div class="st" id="dst">Bağlan'a dokun, ekran açılsın</div></div>
+<div class="grid">
+  <div class="w lg span">
+    <div class="k"><i id="dot"></i><span id="tvK">Salon TV · bağlı değil</span></div>
+    <div class="t" id="tvT">Ekranı açmak için dokun</div>
+    <div class="btns">
+      <button class="btn w1 tap" id="wake"><svg><use href="#i-tv"/></svg>Ekranı aç</button>
+      <button class="btn g tap" id="home"><svg><use href="#i-home"/></svg>Ana ekran</button>
+    </div>
   </div>
-  <div class="acts">
-    <button class="btn lg tint tap" id="connect"><svg><use href="#i-power"/></svg><span id="cTxt">Bağlan</span></button>
-    <button class="btn glass lg tap" id="home" aria-label="Ana ekran"><svg><use href="#i-home"/></svg></button>
-  </div>
+
+  <button class="w lg sq tap" id="wLink"><div class="ic"><svg><use href="#i-link"/></svg></div>
+    <div><div class="k">Panodan</div><div class="t">Link gönder</div></div></button>
+  <button class="w lg sq tap" id="wSearch"><div class="ic"><svg><use href="#i-search"/></svg></div>
+    <div><div class="k">Google · YouTube</div><div class="t">TV'de ara</div></div></button>
+
+  <div class="w lg span"><div class="apps" id="apps"></div></div>
+
+  <div class="w lg span"><div class="k">Son gönderilenler</div><div id="hist"></div></div>
 </div>
 
-
-
-<div class="sh"><h2>Uygulamalar</h2><span>TV'de açılır</span></div>
-<div class="apps" id="apps"></div>
-
-<div class="sh"><h2>Son Gönderilenler</h2></div>
-<div class="group rec lg" id="hist"></div>
-
-<div class="bar">
-  <div class="field lg" id="field">
-  <svg><use href="#i-search"/></svg>
-  <input id="q" type="text" placeholder="Ara veya link yapıştır" enterkeyhint="go" autocapitalize="off" autocorrect="off" spellcheck="false">
-  <button class="paste" id="paste">Yapıştır</button>
-  <button class="clear" id="clear" aria-label="Temizle"><svg><use href="#i-x"/></svg></button>
-</div>
-<div class="group lg" id="suggest"></div>
-</div>
+<div class="credit lg" id="credit"><svg><use href="#i-photo"/></svg><span id="creditTxt">Günün manzarası</span></div>
 
 <div class="hud lg" id="hud"><div class="hi" id="hudI"><svg><use href="#i-check"/></svg></div><span id="hudT"></span></div>
 
 <div class="scrim" id="scrim"></div>
-<div class="sheet" id="sheet">
+
+<!-- Gönder / Ara sayfası -->
+<div class="sheet" id="sAct">
   <div class="grab"></div>
-  <div class="hd"><span></span><b>Ayarlar</b><button id="closeSet">Bitti</button></div>
+  <h3 id="actTitle">TV'de ara</h3>
+  <div class="field"><svg><use href="#i-search"/></svg><input id="q" placeholder="Ara veya link yapıştır" enterkeyhint="go" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
+  <div class="opts" id="opts"></div>
+</div>
 
-  <div class="group">
-    <button class="rowi" id="chgCode"><div class="ic" style="background:var(--blue)"><svg><use href="#i-key"/></svg></div>
-      <div class="rb"><div class="tx"><div class="t1">TV kodu</div></div><span class="val" id="codeVal">—</span><svg class="chev"><use href="#i-chev"/></svg></div></button>
-    <div class="rowi"><div class="ic" style="background:#5e5ce6"><svg><use href="#i-tv"/></svg></div>
-      <div class="rb"><div class="tx"><div class="t1">TV adresi</div><div class="t2" id="tvUrl"></div></div></div></div>
-    <div class="rowi"><div class="ic" style="background:#ff9f0a"><svg><use href="#i-bolt"/></svg></div>
-      <div class="rb"><div class="tx"><div class="t1">Uzaktan açma</div>
-        <input id="hook" class="t2" style="width:100%;color:#fff" placeholder="MacroDroid webhook adresini yapıştır" autocapitalize="off" autocorrect="off" spellcheck="false"></div></div></div>
+<!-- Ayarlar -->
+<div class="sheet" id="sSet">
+  <div class="grab"></div>
+  <h3>Ayarlar</h3>
+  <div class="card2">
+    <button class="row" id="chgCode" style="width:100%"><span>TV kodu</span><span class="v" id="codeVal">—</span></button>
+    <div class="row"><span>TV adresi</span><span class="v" id="tvUrl" style="font-size:13px"></span></div>
   </div>
-  <div class="note" id="hookNote"></div>
-
-  <div class="cap">TV kapalıyken bile açılsın (MacroDroid)</div>
-  <div class="group"><ol class="steps">
-    <li>TV'ye <b>MacroDroid</b> kur (Play Store'da yoksa <b>Downloader</b> ile APK).</li>
-    <li>Yeni makro → Tetikleyici: <b>Webhook (URL)</b>, tanımlayıcı: <code>tv</code>. Çıkan adresi kopyala, yukarıdaki <b>Uzaktan açma</b>'ya yapıştır.</li>
-    <li>Eylem: <b>Eğer</b> <code>url</code> değişkeni boşsa → <b>Uygulama Başlat: Fully Kiosk</b>.</li>
-    <li>Değilse → <b>Web Sitesi Aç</b>: <code>{v=url}</code></li>
-    <li>MacroDroid'in pil/arka plan kısıtlamalarını kapat ki hep dinlesin.</li>
-  </ol></div>
-
-  <div class="cap">Safari'de "TV'ye Gönder"</div>
-  <div class="group"><ol class="steps">
-    <li><b>Kestirmeler</b> uygulamasında <b>+</b> ile yeni kestirme oluştur, adını <b>TV'ye Gönder</b> koy.</li>
-    <li>ⓘ → <b>Paylaşma Ekranında Göster</b>'i aç (URL ve Metin).</li>
-    <li><b>URL'nin İçeriğini Al</b> ekle. URL: <code id="postUrl"></code></li>
-    <li>Yöntem <b>POST</b> · İstek Gövdesi <b>JSON</b> · alan <code>url</code> = <b>Kestirme Girdisi</b>.</li>
-  </ol></div>
-  <div class="note">Bundan sonra Safari'de, Google'da ya da YouTube'da Paylaş → TV'ye Gönder demen yeterli.</div>
-
-  <div class="cap">TV ekranı kendiliğinden açılsın</div>
-  <div class="group"><ol class="steps">
-    <li>TV'de <b>Fully Kiosk Browser</b>'ı kur.</li>
-    <li>Start URL: <code id="tvUrl2"></code></li>
-    <li><b>Launch on Boot</b>'u aç.</li>
-    <li>Bağlan ile öne gelmesi için <b>Enable JavaScript Interface (PLUS)</b>'ı aç.</li>
+  <div class="cap">Safari'de "TV'ye Gönder" butonu</div>
+  <div class="card2"><ol class="steps">
+    <li><b>Kestirmeler</b> → <b>+</b> → adı <b>TV'ye Gönder</b>.</li>
+    <li>ⓘ → <b>Paylaşma Ekranında Göster</b> (URL ve Metin).</li>
+    <li><b>URL'nin İçeriğini Al</b>: <code id="postUrl"></code></li>
+    <li>Yöntem <b>POST</b>, Gövde <b>JSON</b>, alan <code>url</code> = <b>Kestirme Girdisi</b>.</li>
   </ol></div>
 </div>
 
 <div class="onb hide" id="onb">
-  <div class="logo"><svg><use href="#i-tv"/></svg></div>
   <h2>TV'ye bağlan</h2>
-  <p>TV ekranında görünen<br>6 haneli kodu gir.</p>
-  <label class="boxes" id="boxes">
-    <span></span><span></span><span></span><span></span><span></span><span></span>
-    <input id="onbIn" maxlength="6" autocapitalize="characters" autocorrect="off" autocomplete="one-time-code" spellcheck="false">
-  </label>
-  <button class="btn lg tint tap" id="onbGo" disabled>Bağlan</button>
-  <small>Kod, TV ekranının sağ üst köşesinde de yazar.</small>
+  <p>TV ekranındaki 6 haneli kodu gir.</p>
+  <label class="boxes" id="boxes"><span></span><span></span><span></span><span></span><span></span><span></span>
+    <input id="onbIn" maxlength="6" autocapitalize="characters" autocorrect="off" autocomplete="one-time-code" spellcheck="false"></label>
+  <button class="btn w1 go tap" id="onbGo" disabled>Bağlan</button>
 </div>
 
 <script src="apps.js"></script>
@@ -299,151 +225,125 @@ function ytId(u){try{const x=new URL(u);
     const m=x.pathname.match(/\/(shorts|live|embed)\/([\w-]{6,})/); if(m) return m[2]; }}catch(e){} return null;}
 const thumb=u=>{const id=ytId(u);return id?`https://i.ytimg.com/vi/${id}/hqdefault.jpg`:null;};
 function extract(t){ const m=(t||"").match(/https?:\/\/\S+/); if(m) return m[0];
-  t=(t||"").trim(); return /^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(t)&&!/\s/.test(t)?"https://"+t:null; }
+  t=(t||"").trim(); return /^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(t)?"https://"+t:null; }
 const base=()=>location.href.replace(/[#?].*$/,"").replace(/index\.html$/,"");
 const svg=id=>`<svg><use href="#${id}"/></svg>`;
-const haptic=()=>{ try{ navigator.vibrate&&navigator.vibrate(10); }catch(e){} };
+const haptic=()=>{try{navigator.vibrate&&navigator.vibrate(10);}catch(e){}};
 
-let code=store.get("tvcode",""), hist=store.get("hist",[]), connected=false, hook=store.get("hook","");
+let code=store.get("tvcode",""), hist=store.get("hist",[]), connected=false, lastAction=store.get("lastAction","");
+
+/* ---------- Clock ---------- */
+function tick(){const n=new Date(); $("time").textContent=n.toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"});
+  $("date").textContent=n.toLocaleDateString("tr-TR",{weekday:"long",day:"numeric",month:"long"});}
+tick(); setInterval(tick,10000);
+
+/* ---------- Wallpaper ---------- */
+let walls=[], wi=0, front="wA";
+function showWall(i){ if(!walls.length) return; const w=walls[i%walls.length], img=new Image();
+  img.onload=()=>{ const b=front==="wA"?"wB":"wA"; $(b).style.backgroundImage=`url("${w.phone}")`; $(b).classList.add("on"); $(front).classList.remove("on"); front=b;
+    $("creditTxt").textContent=w.place?`Günün manzarası · ${w.place}`:(w.title||"Günün manzarası"); };
+  img.onerror=()=>{ walls.splice(i%walls.length,1); if(walls.length) showWall(i); };
+  img.src=w.phone; }
+window.tvhomeWallpapers().then(l=>{ walls=l; showWall(0); });
+$("credit").onclick=()=>showWall(++wi);
 
 /* ---------- HUD ---------- */
-function hud(text,ok=true){
-  $("hudT").textContent=text; $("hudI").className="hi"+(ok?"":" err"); $("hudI").innerHTML=svg(ok?"i-check":"i-x");
-  const h=$("hud"); h.classList.add("show"); clearTimeout(hud.t); hud.t=setTimeout(()=>h.classList.remove("show"),2000);
-}
+function hud(t,ok=true){ $("hudT").textContent=t; $("hudI").className="hi"+(ok?"":" err"); $("hudI").innerHTML=svg(ok?"i-check":"i-x");
+  const h=$("hud"); h.classList.add("show"); clearTimeout(hud.t); hud.t=setTimeout(()=>h.classList.remove("show"),2000); }
 
-/* ---------- Status ---------- */
+/* ---------- TV status ---------- */
 function refresh(){
   $("dot").classList.toggle("on",connected);
-  $("sub").textContent=code?(connected?`Bağlı · ${code}`:`Kod ${code}`):"Bağlı değil";
+  $("tvK").textContent=code?`Salon TV · ${connected?"bağlı":"kod "+code}`:"Salon TV · bağlı değil";
+  $("tvT").textContent=lastAction||(code?"Hazır":"Kodu girmek için ⚙︎");
   $("codeVal").textContent=code||"Yok";
   $("postUrl").textContent=`${NTFY}/tvhome-${code||"KOD"}`;
-  const tv=base()+"tv.html"; $("tvUrl").textContent=tv.replace(/^https?:\/\//,""); $("tvUrl2").textContent=tv;
+  $("tvUrl").textContent=(base()+"tv.html").replace(/^https?:\/\//,"");
 }
+function setLast(t){ lastAction=t; store.set("lastAction",t); refresh(); }
 
 /* ---------- Send ---------- */
 async function post(obj){
-  if(!code){ if(!hook) showOnb(); return false; }
-  try{ const r=await fetch(`${NTFY}/tvhome-${code}`,{method:"POST",body:JSON.stringify(obj)}); if(!r.ok) throw 0; haptic(); return true; }
+  if(!code){ showOnb(); return false; }
+  try{ const r=await fetch(`${NTFY}/tvhome-${code}`,{method:"POST",body:JSON.stringify(obj)}); if(!r.ok) throw 0; haptic(); connected=true; refresh(); return true; }
   catch(e){ hud("Gönderilemedi",false); return false; }
-}
-async function callHook(params){
-  if(!hook) return false;
-  try{ const u=new URL(hook); Object.entries(params||{}).forEach(([k,v])=>u.searchParams.set(k,v));
-       await fetch(u.toString(),{mode:"no-cors"}); haptic(); return true; }
-  catch(e){ return false; }
 }
 async function sendUrl(url,now,label){
   if(!url) return hud("Link bulunamadı",false);
-  if(hook){
-    // TV kapalı olsa bile MacroDroid linki açar; TV ekranı sadece geçmişe yazar
-    const ok=await callHook({url}); if(code) post({t:"log",url});
-    if(!ok) return hud("Uzaktan açma çalışmadı",false);
-    hud(label||"TV'de açılıyor");
-    hist=[{url,ts:Date.now()},...hist.filter(h=>h.url!==url)].slice(0,15); store.set("hist",hist); renderHist();
-    $("q").value=""; onType(); return;
-  }
   if(await post({t:"open",url,now:!!now})){
-    hud(label||"TV'ye gönderildi");
-    hist=[{url,ts:Date.now()},...hist.filter(h=>h.url!==url)].slice(0,15); store.set("hist",hist); renderHist();
-    $("q").value=""; onType();
+    hud(label||"TV'ye gönderildi"); closeSheets();
+    hist=[{url,ts:Date.now()},...hist.filter(h=>h.url!==url)].slice(0,12); store.set("hist",hist); renderHist();
+    setLast((ytId(url)?"YouTube: ":"")+(hist[0].title||host(url)));
   }
 }
+$("wake").onclick=async()=>{ if(await post({t:"wake"})){ hud("TV ekranı açıldı"); } };
+$("home").onclick=async()=>{ if(await post({t:"home"})){ hud("Ana ekran"); setLast("Ana ekranda"); } };
 
-/* ---------- Device card ---------- */
-function setConnected(on){
-  connected=on; refresh();
-  const b=$("connect");
-  b.className="btn lg tap "+(on?"tint-g":"tint");
-  b.innerHTML=svg(on?"i-check":"i-power")+`<span>${on?"Bağlı":"Bağlan"}</span>`;
-  $("dst").textContent=on?"Ekran açık · link gönderebilirsin":"Bağlan'a dokun, ekran açılsın";
-}
-$("connect").onclick=async()=>{
-  if(hook){ if(await callHook({})){ if(code) post({t:"wake"}); setConnected(true); hud("TV ekranı açılıyor"); } else hud("Uzaktan açma çalışmadı",false); return; }
-  if(await post({t:"wake"})){ setConnected(true); hud("TV ekranı açıldı"); }
-};
-$("home").onclick=async()=>{ if(await post({t:"home"})) hud("Ana ekran"); };
+/* ---------- Sheets ---------- */
+function openSheet(id){ $(id).classList.add("show"); $("scrim").classList.add("show"); }
+function closeSheets(){ document.querySelectorAll(".sheet").forEach(s=>s.classList.remove("show")); $("scrim").classList.remove("show"); $("q").blur(); }
+$("scrim").onclick=closeSheets;
+$("openSet").onclick=()=>openSheet("sSet");
+$("chgCode").onclick=()=>{ closeSheets(); setTimeout(showOnb,250); };
 
-/* ---------- Smart field ---------- */
-const q=()=>$("q").value.trim();
-function sugRow(id,color,title,sub,fn){
-  const b=document.createElement("button"); b.className="rowi";
-  b.innerHTML=`<div class="ic" style="background:${color}">${svg(id)}</div><div class="rb"><div class="tx"><div class="t1">${esc(title)}</div>${sub?`<div class="t2">${esc(sub)}</div>`:""}</div><svg class="chev"><use href="#i-chev"/></svg></div>`;
-  b.onclick=fn; return b;
-}
-function onType(){
-  const v=q(), box=$("suggest"); $("field").classList.toggle("has",!!v); box.innerHTML="";
-  if(!v){ box.classList.remove("show"); return; }
+function opt(ic,color,t1,t2,fn){ const b=document.createElement("button"); b.className="opt";
+  b.innerHTML=`<div class="oi" style="background:${color}">${svg(ic)}</div><div><div class="o1">${esc(t1)}</div>${t2?`<div class="o2">${esc(t2)}</div>`:""}</div>`; b.onclick=fn; return b; }
+function renderOpts(){
+  const v=$("q").value.trim(), box=$("opts"); box.innerHTML=""; if(!v){ box.style.display="none"; return; } box.style.display="";
   const url=extract(v);
-  if(url){
-    box.appendChild(sugRow("i-tv","var(--blue)","TV'de aç",host(url),()=>sendUrl(url,true,"TV'de açılıyor")));
-  } else {
-    const enc=encodeURIComponent(v);
-    box.appendChild(sugRow("i-tv","var(--blue)",`TV'de Google'da ara`,`“${v}”`,()=>sendUrl("https://www.google.com/search?q="+enc,true,"TV'de aranıyor")));
-    box.appendChild(sugRow("i-play","#ff3b30",`TV'de YouTube'da ara`,`“${v}”`,()=>sendUrl("https://www.youtube.com/results?search_query="+enc,true,"YouTube'da aranıyor")));
-    box.appendChild(sugRow("i-globe","#636366","iPhone'da ara","Bulunca Paylaş → TV'ye Gönder",()=>{ location.href="https://www.google.com/search?q="+enc; }));
-  }
-  box.classList.add("show");
+  if(url){ box.appendChild(opt("i-tv","var(--blue)","TV'de aç",host(url),()=>sendUrl(url,true,"TV'de açılıyor"))); return; }
+  const e=encodeURIComponent(v);
+  box.appendChild(opt("i-tv","var(--blue)","TV'de Google'da ara",`“${v}”`,()=>sendUrl("https://www.google.com/search?q="+e,true,"TV'de aranıyor")));
+  box.appendChild(opt("i-play","#ff3b30","TV'de YouTube'da ara",`“${v}”`,()=>sendUrl("https://www.youtube.com/results?search_query="+e,true,"YouTube'da aranıyor")));
+  box.appendChild(opt("i-globe","#636366","iPhone'da ara","Bulunca Paylaş → TV'ye Gönder",()=>{ location.href="https://www.google.com/search?q="+e; }));
 }
-$("q").addEventListener("input",onType);
-$("q").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); const f=$("suggest").querySelector(".rowi"); f&&f.click(); $("q").blur(); } });
-$("clear").onclick=()=>{ $("q").value=""; onType(); $("q").focus(); };
-$("paste").onclick=async()=>{
-  try{ const t=await navigator.clipboard.readText(); if(!t) return hud("Pano boş",false);
-       $("q").value=t.trim(); onType(); const u=extract(t); if(u) sendUrl(u,false,"TV'ye gönderildi"); }
-  catch(e){ $("q").focus(); hud("Uzun bas → Yapıştır",false); }
+$("q").addEventListener("input",renderOpts);
+$("q").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); const f=$("opts").querySelector(".opt"); f&&f.click(); } });
+function openAct(title,ph){ $("actTitle").textContent=title; $("q").placeholder=ph; $("q").value=""; renderOpts(); openSheet("sAct"); setTimeout(()=>$("q").focus(),350); }
+$("wSearch").onclick=()=>openAct("TV'de ara","Ne izlemek istersin?");
+$("wLink").onclick=async()=>{
+  try{ const t=await navigator.clipboard.readText(); const u=extract(t); if(u) return sendUrl(u,false,"TV'ye gönderildi"); }catch(e){}
+  openAct("Link gönder","Linki yapıştır");
 };
 
 /* ---------- Apps ---------- */
 APPS.forEach(a=>{
   const b=document.createElement("button"); b.className="app tap";
   const src=a.img||(a.domain?icon(a.domain):null);
-  b.innerHTML=`<div class="sq" style="background:${a.bg}">${src?`<img src="${src}" alt="">`:svg("i-gear")}</div><div class="lb">${esc(a.name)}</div>`;
-  const im=b.querySelector("img"); if(im) im.onerror=()=>{ im.outerHTML=`<span class="w">${esc(a.name)}</span>`; };
-  b.onclick=async()=>{ if(await post({t:"app",id:a.id})) hud(`${a.name} açılıyor`); };
+  b.innerHTML=`<div class="sq2" style="background:${a.bg}">${src?`<img src="${src}" alt="">`:svg("i-gear")}</div><div class="lb">${esc(a.name)}</div>`;
+  const im=b.querySelector("img"); if(im) im.onerror=()=>{ im.outerHTML=`<span class="wd">${esc(a.name)}</span>`; };
+  b.onclick=async()=>{ if(await post({t:"app",id:a.id})){ hud(`${a.name} açılıyor`); setLast(`${a.name} açıldı`); } };
   $("apps").appendChild(b);
 });
 
-/* ---------- Recents ---------- */
+/* ---------- History ---------- */
 function renderHist(){
   const box=$("hist");
-  if(!hist.length){ box.innerHTML=`<div class="emptyc">Gönderdiğin linkler burada görünür.<br>Tek dokunuşla yeniden gönderebilirsin.</div>`; return; }
+  if(!hist.length){ box.innerHTML=`<div class="empty">Gönderdiğin linkler burada görünür.</div>`; return; }
   box.innerHTML="";
-  hist.forEach(h=>{
-    const b=document.createElement("button"); b.className="rowi"; const th=thumb(h.url);
+  hist.slice(0,5).forEach(h=>{
+    const b=document.createElement("button"); b.className="li"; const th=thumb(h.url);
     b.innerHTML=`<div class="th" ${th?`style="background-image:url(${th})"`:""}>${th?"":`<img src="${icon(host(h.url))}" alt="">`}</div>
-      <div class="rb"><div class="tx"><div class="t1">${esc(h.title||host(h.url)||h.url)}</div><div class="t2">${esc(h.title?host(h.url):h.url)}</div></div><span class="again">Gönder</span></div>`;
+      <div class="tt"><div class="a">${esc(h.title||host(h.url))}</div><div class="b">${esc(host(h.url))}</div></div><span class="re">Gönder</span>`;
     b.onclick=()=>sendUrl(h.url,false,"Tekrar gönderildi");
     box.appendChild(b);
     if(!h.title && ytId(h.url)) fetch("https://noembed.com/embed?url="+encodeURIComponent(h.url)).then(r=>r.json()).then(j=>{
-      if(j&&j.title){ h.title=j.title; store.set("hist",hist); b.querySelector(".t1").textContent=j.title; b.querySelector(".t2").textContent=host(h.url); } }).catch(()=>{});
+      if(j&&j.title){ h.title=j.title; store.set("hist",hist); b.querySelector(".a").textContent=j.title; } }).catch(()=>{});
   });
 }
-
-/* ---------- Settings sheet ---------- */
-function sheet(on){ $("sheet").classList.toggle("show",on); $("scrim").classList.toggle("show",on); }
-$("openSet").onclick=()=>sheet(true); $("closeSet").onclick=()=>sheet(false); $("scrim").onclick=()=>sheet(false);
-$("chgCode").onclick=()=>{ sheet(false); setTimeout(showOnb,250); };
-
-$("hook").value=hook;
-function hookInfo(){ $("hookNote").textContent=hook?"Açık: Bağlan ve link gönderme, TV'de tarayıcı kapalı olsa da çalışır.":"Kapalı: Link göndermek için TV ekranının açık olması gerekir."; }
-$("hook").addEventListener("change",e=>{ const v=e.target.value.trim(); hook=/^https:\/\/trigger\.macrodroid\.com\//.test(v)?v:""; if(v&&!hook) hud("Geçersiz adres",false); e.target.value=hook; store.set("hook",hook); hookInfo(); });
-hookInfo();
 
 /* ---------- Onboarding ---------- */
 function drawBoxes(){ const v=$("onbIn").value; [...$("boxes").querySelectorAll("span")].forEach((b,i)=>{ b.textContent=v[i]||""; b.classList.toggle("cur",i===Math.min(v.length,5)); }); $("onbGo").disabled=v.length<6; }
 $("onbIn").addEventListener("input",e=>{ e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6); drawBoxes(); });
-$("onbGo").onclick=async()=>{
-  code=$("onbIn").value; store.set("tvcode",code); refresh();
-  if(await post({t:"wake"})){ $("onb").classList.add("hide"); setConnected(true); hud("TV'ye bağlandı"); }
-};
+$("onbGo").onclick=async()=>{ code=$("onbIn").value; store.set("tvcode",code); refresh();
+  if(await post({t:"wake"})){ $("onb").classList.add("hide"); hud("TV'ye bağlandı"); } };
 function showOnb(){ $("onb").classList.remove("hide"); $("onbIn").value=""; drawBoxes(); setTimeout(()=>$("onbIn").focus(),350); }
 
 /* ---------- Init ---------- */
 const qp=new URLSearchParams(location.search);
 if(qp.get("k")){ code=qp.get("k").toUpperCase(); store.set("tvcode",code); }
-refresh(); renderHist(); setConnected(false);
-if(!code && !hook) showOnb();
+refresh(); renderHist();
+if(!code) showOnb();
 if(qp.get("u")){ const u=extract(qp.get("u")); history.replaceState(null,"",base()); if(u) sendUrl(u); }
 </script>
 </body>
