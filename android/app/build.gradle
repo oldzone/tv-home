@@ -1,0 +1,39 @@
+plugins {
+    id 'com.android.application'
+}
+
+def runNo = (System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInteger()
+
+android {
+    namespace 'com.oldzone.tvhome'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.oldzone.tvhome'
+        minSdk 24
+        targetSdk 34
+        versionCode runNo
+        versionName "1.0." + runNo
+    }
+
+    signingConfigs {
+        release {
+            storeFile file('../release.jks')
+            storePassword 'tvhome123'
+            keyAlias 'tvhome'
+            keyPassword 'tvhome123'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

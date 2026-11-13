@@ -450,8 +450,14 @@ function connect(){
   es.onerror=()=>$("dot").classList.remove("on");
   es.onmessage=e=>{try{const ev=JSON.parse(e.data); if(ev.event==="message"&&ev.message) incoming(ev.message);}catch(err){}};
 }
-connect();
-document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"&&(!es||es.readyState===2)) connect(); });
+const NATIVE=(typeof window.TVHomeNative!=="undefined")?window.TVHomeNative:null;
+if(NATIVE){
+  // Uygulama içindeyiz: dinlemeyi Android servisi yapıyor, mesajları incoming() ile iletiyor
+  const upd=()=>{ try{ $("dot").classList.toggle("on",!!NATIVE.isConnected()); }catch(e){} };
+  upd(); setInterval(upd,3000);
+} else connect();
+window.nativeBack=()=>{ if(stopSaver()){poke();return;} if(pending){cancelPending();return;} if(pos.row===1) focusAt(0,lastCol[0]); };
+document.addEventListener("visibilitychange",()=>{ if(!NATIVE&&document.visibilityState==="visible"&&(!es||es.readyState===2)) connect(); });
 
 renderHist();
 focusAt(0,0);
