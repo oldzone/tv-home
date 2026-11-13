@@ -434,6 +434,7 @@ function incoming(msg){
   const item={url,title:d.title||"",ts:Date.now()};
   hist=[item,...hist.filter(h=>h.url!==url)].slice(0,MAX_HIST); store.set("hist",hist); renderHist(); refocus();
   toFront(); fetchTitle(item);
+  if(t==="log") return;   // TV'yi MacroDroid açtı; burada sadece geçmişe yaz
   if(d.now){ launch(url); return; }
   cancelPending();
   note({kicker:"iPhone'dan geldi · birazdan açılıyor",title:item.title||host(url),host:host(url),img:thumb(url),glyph:"↗",countdown:true});

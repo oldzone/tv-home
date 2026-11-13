@@ -240,7 +240,20 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:var(--g3
       <div class="rb"><div class="tx"><div class="t1">TV kodu</div></div><span class="val" id="codeVal">—</span><svg class="chev"><use href="#i-chev"/></svg></div></button>
     <div class="rowi"><div class="ic" style="background:#5e5ce6"><svg><use href="#i-tv"/></svg></div>
       <div class="rb"><div class="tx"><div class="t1">TV adresi</div><div class="t2" id="tvUrl"></div></div></div></div>
+    <div class="rowi"><div class="ic" style="background:#ff9f0a"><svg><use href="#i-bolt"/></svg></div>
+      <div class="rb"><div class="tx"><div class="t1">Uzaktan açma</div>
+        <input id="hook" class="t2" style="width:100%;color:#fff" placeholder="MacroDroid webhook adresini yapıştır" autocapitalize="off" autocorrect="off" spellcheck="false"></div></div></div>
   </div>
+  <div class="note" id="hookNote"></div>
+
+  <div class="cap">TV kapalıyken bile açılsın (MacroDroid)</div>
+  <div class="group"><ol class="steps">
+    <li>TV'ye <b>MacroDroid</b> kur (Play Store'da yoksa <b>Downloader</b> ile APK).</li>
+    <li>Yeni makro → Tetikleyici: <b>Webhook (URL)</b>, tanımlayıcı: <code>tv</code>. Çıkan adresi kopyala, yukarıdaki <b>Uzaktan açma</b>'ya yapıştır.</li>
+    <li>Eylem: <b>Eğer</b> <code>url</code> değişkeni boşsa → <b>Uygulama Başlat: Fully Kiosk</b>.</li>
+    <li>Değilse → <b>Web Sitesi Aç</b>: <code>{v=url}</code></li>
+    <li>MacroDroid'in pil/arka plan kısıtlamalarını kapat ki hep dinlesin.</li>
+  </ol></div>
 
   <div class="cap">Safari'de "TV'ye Gönder"</div>
   <div class="group"><ol class="steps">
@@ -291,7 +304,7 @@ const base=()=>location.href.replace(/[#?].*$/,"").replace(/index\.html$/,"");
 const svg=id=>`<svg><use href="#${id}"/></svg>`;
 const haptic=()=>{ try{ navigator.vibrate&&navigator.vibrate(10); }catch(e){} };
 
-let code=store.get("tvcode",""), hist=store.get("hist",[]), connected=false;
+let code=store.get("tvcode",""), hist=store.get("hist",[]), connected=false, hook=store.get("hook","");
 
 /* ---------- HUD ---------- */
 function hud(text,ok=true){
@@ -310,12 +323,26 @@ function refresh(){
 
 /* ---------- Send ---------- */
 async function post(obj){
-  if(!code){ showOnb(); return false; }
+  if(!code){ if(!hook) showOnb(); return false; }
   try{ const r=await fetch(`${NTFY}/tvhome-${code}`,{method:"POST",body:JSON.stringify(obj)}); if(!r.ok) throw 0; haptic(); return true; }
   catch(e){ hud("Gönderilemedi",false); return false; }
 }
+async function callHook(params){
+  if(!hook) return false;
+  try{ const u=new URL(hook); Object.entries(params||{}).forEach(([k,v])=>u.searchParams.set(k,v));
+       await fetch(u.toString(),{mode:"no-cors"}); haptic(); return true; }
+  catch(e){ return false; }
+}
 async function sendUrl(url,now,label){
   if(!url) return hud("Link bulunamadı",false);
+  if(hook){
+    // TV kapalı olsa bile MacroDroid linki açar; TV ekranı sadece geçmişe yazar
+    const ok=await callHook({url}); if(code) post({t:"log",url});
+    if(!ok) return hud("Uzaktan açma çalışmadı",false);
+    hud(label||"TV'de açılıyor");
+    hist=[{url,ts:Date.now()},...hist.filter(h=>h.url!==url)].slice(0,15); store.set("hist",hist); renderHist();
+    $("q").value=""; onType(); return;
+  }
   if(await post({t:"open",url,now:!!now})){
     hud(label||"TV'ye gönderildi");
     hist=[{url,ts:Date.now()},...hist.filter(h=>h.url!==url)].slice(0,15); store.set("hist",hist); renderHist();
@@ -331,7 +358,10 @@ function setConnected(on){
   b.innerHTML=svg(on?"i-check":"i-power")+`<span>${on?"Bağlı":"Bağlan"}</span>`;
   $("dst").textContent=on?"Ekran açık · link gönderebilirsin":"Bağlan'a dokun, ekran açılsın";
 }
-$("connect").onclick=async()=>{ if(await post({t:"wake"})){ setConnected(true); hud("TV ekranı açıldı"); } };
+$("connect").onclick=async()=>{
+  if(hook){ if(await callHook({})){ if(code) post({t:"wake"}); setConnected(true); hud("TV ekranı açılıyor"); } else hud("Uzaktan açma çalışmadı",false); return; }
+  if(await post({t:"wake"})){ setConnected(true); hud("TV ekranı açıldı"); }
+};
 $("home").onclick=async()=>{ if(await post({t:"home"})) hud("Ana ekran"); };
 
 /* ---------- Smart field ---------- */
@@ -395,6 +425,11 @@ function sheet(on){ $("sheet").classList.toggle("show",on); $("scrim").classList
 $("openSet").onclick=()=>sheet(true); $("closeSet").onclick=()=>sheet(false); $("scrim").onclick=()=>sheet(false);
 $("chgCode").onclick=()=>{ sheet(false); setTimeout(showOnb,250); };
 
+$("hook").value=hook;
+function hookInfo(){ $("hookNote").textContent=hook?"Açık: Bağlan ve link gönderme, TV'de tarayıcı kapalı olsa da çalışır.":"Kapalı: Link göndermek için TV ekranının açık olması gerekir."; }
+$("hook").addEventListener("change",e=>{ const v=e.target.value.trim(); hook=/^https:\/\/trigger\.macrodroid\.com\//.test(v)?v:""; if(v&&!hook) hud("Geçersiz adres",false); e.target.value=hook; store.set("hook",hook); hookInfo(); });
+hookInfo();
+
 /* ---------- Onboarding ---------- */
 function drawBoxes(){ const v=$("onbIn").value; [...$("boxes").querySelectorAll("span")].forEach((b,i)=>{ b.textContent=v[i]||""; b.classList.toggle("cur",i===Math.min(v.length,5)); }); $("onbGo").disabled=v.length<6; }
 $("onbIn").addEventListener("input",e=>{ e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6); drawBoxes(); });
@@ -408,7 +443,7 @@ function showOnb(){ $("onb").classList.remove("hide"); $("onbIn").value=""; draw
 const qp=new URLSearchParams(location.search);
 if(qp.get("k")){ code=qp.get("k").toUpperCase(); store.set("tvcode",code); }
 refresh(); renderHist(); setConnected(false);
-if(!code) showOnb();
+if(!code && !hook) showOnb();
 if(qp.get("u")){ const u=extract(qp.get("u")); history.replaceState(null,"",base()); if(u) sendUrl(u); }
 </script>
 </body>
