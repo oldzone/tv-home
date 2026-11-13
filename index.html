@@ -21,40 +21,58 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{background:var(--bg);color:var(--label);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter",system-ui,sans-serif;
   -webkit-font-smoothing:antialiased;-webkit-user-select:none;user-select:none}
-body{padding:calc(env(safe-area-inset-top) + 8px) 16px calc(env(safe-area-inset-bottom) + 32px);min-height:100vh}
+body{padding:calc(env(safe-area-inset-top) + 8px) 16px calc(env(safe-area-inset-bottom) + 96px);min-height:100vh;background:transparent}
+html{background:#000}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
 input{font:inherit;color:inherit;border:0;background:none;outline:none;-webkit-user-select:text;user-select:text}
 svg{display:block}
 .tap{transition:transform .18s var(--ease),opacity .18s}
 .tap:active{transform:scale(.96);opacity:.75}
 
+
+/* ---------- Liquid Glass (iOS 26) ---------- */
+.ambient{position:fixed;inset:-20%;z-index:-1;pointer-events:none;
+  background:radial-gradient(40% 30% at 20% 15%,#2a4bd7aa,transparent 70%),radial-gradient(35% 28% at 85% 25%,#9b3fd188,transparent 70%),
+  radial-gradient(45% 35% at 60% 85%,#0f8f9a77,transparent 70%),#000;filter:blur(20px);animation:amb 30s ease-in-out infinite alternate}
+@keyframes amb{to{transform:translate(-4%,3%) scale(1.06)}}
+.lg{position:relative;isolation:isolate;
+  background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.04));
+  backdrop-filter:blur(22px) saturate(190%);-webkit-backdrop-filter:blur(22px) saturate(190%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 -1px 0 rgba(255,255,255,.06),0 8px 30px rgba(0,0,0,.28)}
+.lg::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
+  background:linear-gradient(135deg,rgba(255,255,255,.7),rgba(255,255,255,.05) 35%,rgba(255,255,255,.04) 65%,rgba(255,255,255,.45));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.lg.tint{background:linear-gradient(180deg,rgba(10,132,255,.85),rgba(10,100,230,.7))}
+.lg.tint-g{background:linear-gradient(180deg,rgba(48,209,88,.85),rgba(36,170,70,.75))}
+
+/* bottom search bar (iOS 26 style) */
+.bar{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 10px);z-index:30;display:flex;flex-direction:column-reverse;gap:10px}
+.bar .field{height:52px;border-radius:26px;padding:0 8px 0 18px;background:none}
+.bar #suggest{margin:0;border-radius:24px;overflow:hidden;background:rgba(28,28,32,.78);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%)}
+
 /* Nav */
 .nav{display:flex;align-items:flex-end;justify-content:space-between;padding:6px 4px 2px}
 .nav h1{font-size:34px;font-weight:700;letter-spacing:.012em;line-height:1.1}
-.circ{width:34px;height:34px;border-radius:50%;background:var(--g1);display:flex;align-items:center;justify-content:center;margin-bottom:4px}
-.circ svg{width:19px;height:19px;color:var(--blue)}
+.circ{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:4px}
+.circ svg{width:21px;height:21px;color:#fff}
 .substatus{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--l2);padding:2px 4px 18px}
 .substatus i{width:7px;height:7px;border-radius:50%;background:var(--l3)}
 .substatus i.on{background:var(--green)}
 
 /* Device card */
-.device{position:relative;border-radius:22px;padding:18px;overflow:hidden;margin-bottom:22px;
-  background:linear-gradient(160deg,#1f2a44 0%,#151a28 55%,#111 100%);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.08)}
-.device::before{content:"";position:absolute;inset:0;background:radial-gradient(240px 160px at 85% 0%,rgba(10,132,255,.35),transparent 70%);pointer-events:none}
+.device{border-radius:28px;padding:18px;margin-bottom:8px}
 .device .top{position:relative;display:flex;align-items:center;gap:14px}
-.device .glyph{width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center}
+.device .glyph{width:52px;height:52px;border-radius:16px;background:rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center}
 .device .glyph svg{width:28px;height:28px;color:#fff}
 .device .nm{font-size:20px;font-weight:600;letter-spacing:-.01em}
 .device .st{font-size:14px;color:var(--l2);margin-top:2px}
 .device .acts{position:relative;display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:18px}
-.btn{height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:17px;font-weight:600}
+.btn{height:52px;border-radius:26px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:17px;font-weight:600}
 .btn svg{width:20px;height:20px}
-.btn.blue{background:var(--blue)}
-.btn.green{background:var(--green)}
-.btn.glass{background:rgba(255,255,255,.12);width:50px}
+.btn.glass{width:52px}
 
 /* Search field */
-.field{display:flex;align-items:center;gap:8px;height:44px;border-radius:12px;background:var(--fill);padding:0 10px 0 12px}
+.field{display:flex;align-items:center;gap:8px;height:44px;border-radius:12px;padding:0 10px 0 12px}
 .field svg{width:18px;height:18px;color:var(--l2);flex:0 0 auto}
 .field input{flex:1;height:100%;font-size:17px;min-width:0}
 .field input::placeholder{color:var(--l2)}
@@ -64,9 +82,9 @@ svg{display:block}
 .field.has .clear{display:flex} .field.has .paste{display:none}
 
 /* Grouped list */
-.group{background:var(--g1);border-radius:12px;overflow:hidden}
+.group{border-radius:22px;overflow:hidden}
 .rowi{display:flex;align-items:center;gap:12px;padding:0 14px;min-height:52px;width:100%;text-align:left}
-.rowi + .rowi .rb{border-top:.5px solid var(--sep)}
+.rowi + .rowi .rb{border-top:.5px solid rgba(255,255,255,.12)}
 .rowi .ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
 .rowi .ic svg{width:18px;height:18px;color:#fff}
 .rowi .rb{flex:1;display:flex;align-items:center;gap:10px;min-height:52px;min-width:0}
@@ -75,7 +93,7 @@ svg{display:block}
 .rowi .t2{font-size:13px;color:var(--l2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
 .rowi .chev{width:8px;height:14px;color:var(--l3);flex:0 0 auto}
 .rowi .val{color:var(--l2);font-size:17px}
-.rowi:active{background:var(--g2)}
+.rowi:active{background:rgba(255,255,255,.08)}
 #suggest{margin-top:10px;display:none}
 #suggest.show{display:block;animation:drop .25s var(--ease)}
 @keyframes drop{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
@@ -88,12 +106,15 @@ svg{display:block}
 /* Apps */
 .apps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px 14px;padding:0 2px}
 .app{display:flex;flex-direction:column;align-items:center;gap:7px}
-.app .sq{width:100%;aspect-ratio:1;border-radius:23%;display:flex;align-items:center;justify-content:center;overflow:hidden;
-  box-shadow:inset 0 0 0 .5px rgba(255,255,255,.1)}
+.app .sq{position:relative;width:100%;aspect-ratio:1;border-radius:24%;display:flex;align-items:center;justify-content:center;overflow:hidden;
+  box-shadow:0 6px 16px rgba(0,0,0,.35)}
+.app .sq::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 0 0 1px rgba(255,255,255,.14);
+  background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,0) 40%)}
 .app .sq img{width:56%;height:56%;object-fit:contain}
 .app .sq .w{font-size:13px;font-weight:700}
 .app .sq svg{width:46%;height:46%;color:#fff}
-.app .lb{font-size:12px;color:var(--l2);white-space:nowrap}
+.app .lb{font-size:12px;color:rgba(255,255,255,.8);white-space:nowrap}
 
 /* Recents */
 .rec .th{width:64px;aspect-ratio:16/9;border-radius:6px;background:var(--g3) center/cover;flex:0 0 auto;display:flex;align-items:center;justify-content:center;margin:10px 0}
@@ -104,8 +125,7 @@ svg{display:block}
 /* HUD toast */
 .hud{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 10px);z-index:50;transform:translate(-50%,-160%);
   display:flex;align-items:center;gap:10px;padding:10px 18px 10px 12px;border-radius:30px;
-  background:rgba(44,44,46,.82);backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%);
-  box-shadow:0 10px 30px rgba(0,0,0,.4);transition:transform .5s var(--ease);font-size:15px;font-weight:600;white-space:nowrap}
+  transition:transform .5s var(--ease);font-size:15px;font-weight:600;white-space:nowrap}
 .hud.show{transform:translate(-50%,0)}
 .hud .hi{width:28px;height:28px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center}
 .hud .hi.err{background:var(--red)}
@@ -114,14 +134,14 @@ svg{display:block}
 /* Sheet */
 .scrim{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .3s}
 .scrim.show{opacity:1;pointer-events:auto}
-.sheet{position:fixed;left:0;right:0;bottom:0;z-index:41;background:var(--g1);border-radius:14px 14px 0 0;
+.sheet{position:fixed;left:8px;right:8px;bottom:8px;z-index:41;border-radius:34px;background:rgba(30,30,32,.72);backdrop-filter:blur(40px) saturate(180%);-webkit-backdrop-filter:blur(40px) saturate(180%);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 20px 60px rgba(0,0,0,.5);
   padding:8px 16px calc(env(safe-area-inset-bottom) + 24px);max-height:88vh;overflow:auto;transform:translateY(105%);transition:transform .45s var(--ease)}
 .sheet.show{transform:none}
 .grab{width:36px;height:5px;border-radius:3px;background:var(--g3);margin:0 auto 10px}
 .sheet .hd{display:flex;align-items:center;justify-content:space-between;margin:4px 0 16px}
 .sheet .hd b{font-size:17px;font-weight:600}
 .sheet .hd button{color:var(--blue);font-size:17px;font-weight:600}
-.sheet .group{background:var(--g2)}
+.sheet .group{background:rgba(255,255,255,.07)}
 .sheet .cap{font-size:13px;color:var(--l2);text-transform:uppercase;margin:22px 14px 7px;letter-spacing:.02em}
 .sheet .note{font-size:13px;color:var(--l2);margin:8px 14px 0;line-height:1.4}
 .steps{counter-reset:s;padding:6px 14px 12px}
@@ -135,15 +155,15 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:var(--g3
   padding:calc(env(safe-area-inset-top) + 20px) 28px calc(env(safe-area-inset-bottom) + 28px);
   background:radial-gradient(520px 420px at 50% -10%,#1f3a7a,transparent 70%),#000;transition:opacity .45s,transform .45s var(--ease)}
 .onb.hide{opacity:0;transform:scale(1.05);pointer-events:none}
-.onb .logo{width:88px;height:88px;border-radius:21px;background:linear-gradient(160deg,#3a3a3c,#1c1c1e);display:flex;align-items:center;justify-content:center;
+.onb .logo{width:88px;height:88px;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,.05));display:flex;align-items:center;justify-content:center;
   box-shadow:0 14px 40px rgba(0,0,0,.6),inset 0 0 0 .5px rgba(255,255,255,.15);margin-bottom:28px}
 .onb .logo svg{width:50px;height:50px;color:#fff}
 .onb h2{font-size:28px;font-weight:700}
 .onb p{color:var(--l2);font-size:17px;margin-top:10px;line-height:1.4}
 .boxes{position:relative;display:flex;gap:8px;margin:36px 0 32px}
-.boxes span{width:46px;height:58px;border-radius:12px;background:var(--g1);display:flex;align-items:center;justify-content:center;
+.boxes span{width:46px;height:58px;border-radius:16px;background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.04));box-shadow:inset 0 1px 0 rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;
   font-size:26px;font-weight:600;transition:box-shadow .2s}
-.boxes span.cur{box-shadow:inset 0 0 0 2px var(--blue)}
+.boxes span.cur{box-shadow:inset 0 0 0 2px var(--blue),inset 0 1px 0 rgba(255,255,255,.3)}
 .boxes input{position:absolute;inset:0;opacity:0;font-size:16px}
 .onb .btn{width:100%;max-width:340px}
 .onb .btn:disabled{opacity:.35}
@@ -171,38 +191,44 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:var(--g3
   </defs>
 </svg>
 
+<div class="ambient"></div>
+
 <div class="nav">
   <h1>TV</h1>
-  <button class="circ tap" id="openSet" aria-label="Ayarlar"><svg><use href="#i-gear"/></svg></button>
+  <button class="circ lg tap" id="openSet" aria-label="Ayarlar"><svg><use href="#i-gear"/></svg></button>
 </div>
 <div class="substatus"><i id="dot"></i><span id="sub">Bağlı değil</span></div>
 
-<div class="device">
+<div class="device lg">
   <div class="top">
     <div class="glyph"><svg><use href="#i-tv"/></svg></div>
     <div><div class="nm">Salon TV</div><div class="st" id="dst">Bağlan'a dokun, ekran açılsın</div></div>
   </div>
   <div class="acts">
-    <button class="btn blue tap" id="connect"><svg><use href="#i-power"/></svg><span id="cTxt">Bağlan</span></button>
-    <button class="btn glass tap" id="home" aria-label="Ana ekran"><svg><use href="#i-home"/></svg></button>
+    <button class="btn lg tint tap" id="connect"><svg><use href="#i-power"/></svg><span id="cTxt">Bağlan</span></button>
+    <button class="btn glass lg tap" id="home" aria-label="Ana ekran"><svg><use href="#i-home"/></svg></button>
   </div>
 </div>
 
-<div class="field" id="field">
-  <svg><use href="#i-search"/></svg>
-  <input id="q" type="text" placeholder="Ara veya link yapıştır" enterkeyhint="go" autocapitalize="off" autocorrect="off" spellcheck="false">
-  <button class="paste" id="paste">Yapıştır</button>
-  <button class="clear" id="clear" aria-label="Temizle"><svg><use href="#i-x"/></svg></button>
-</div>
-<div class="group" id="suggest"></div>
+
 
 <div class="sh"><h2>Uygulamalar</h2><span>TV'de açılır</span></div>
 <div class="apps" id="apps"></div>
 
 <div class="sh"><h2>Son Gönderilenler</h2></div>
-<div class="group rec" id="hist"></div>
+<div class="group rec lg" id="hist"></div>
 
-<div class="hud" id="hud"><div class="hi" id="hudI"><svg><use href="#i-check"/></svg></div><span id="hudT"></span></div>
+<div class="bar">
+  <div class="field lg" id="field">
+  <svg><use href="#i-search"/></svg>
+  <input id="q" type="text" placeholder="Ara veya link yapıştır" enterkeyhint="go" autocapitalize="off" autocorrect="off" spellcheck="false">
+  <button class="paste" id="paste">Yapıştır</button>
+  <button class="clear" id="clear" aria-label="Temizle"><svg><use href="#i-x"/></svg></button>
+</div>
+<div class="group lg" id="suggest"></div>
+</div>
+
+<div class="hud lg" id="hud"><div class="hi" id="hudI"><svg><use href="#i-check"/></svg></div><span id="hudT"></span></div>
 
 <div class="scrim" id="scrim"></div>
 <div class="sheet" id="sheet">
@@ -242,7 +268,7 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:var(--g3
     <span></span><span></span><span></span><span></span><span></span><span></span>
     <input id="onbIn" maxlength="6" autocapitalize="characters" autocorrect="off" autocomplete="one-time-code" spellcheck="false">
   </label>
-  <button class="btn blue tap" id="onbGo" disabled>Bağlan</button>
+  <button class="btn lg tint tap" id="onbGo" disabled>Bağlan</button>
   <small>Kod, TV ekranının sağ üst köşesinde de yazar.</small>
 </div>
 
@@ -301,7 +327,7 @@ async function sendUrl(url,now,label){
 function setConnected(on){
   connected=on; refresh();
   const b=$("connect");
-  b.className="btn tap "+(on?"green":"blue");
+  b.className="btn lg tap "+(on?"tint-g":"tint");
   b.innerHTML=svg(on?"i-check":"i-power")+`<span>${on?"Bağlı":"Bağlan"}</span>`;
   $("dst").textContent=on?"Ekran açık · link gönderebilirsin":"Bağlan'a dokun, ekran açılsın";
 }
