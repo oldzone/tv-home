@@ -50,24 +50,31 @@
     background:rgba(0,0,0,.35);padding:1vh 2vw;border-radius:16px}
   .shelf.focus{transform:scale(1.015);box-shadow:0 2.5vh 6vh rgba(0,0,0,.6),0 0 0 .4vh rgba(255,255,255,.85)}
 
-  section{margin-top:3.2vh}
+  section{margin-top:2.6vh}
   section h2{font-size:2.3vh;font-weight:600;color:var(--muted);margin:0 0 1.4vh .4vw}
   .row{display:flex;gap:2vw;padding:1.5vh .6vw 2.5vh;overflow:hidden;scroll-behavior:smooth}
 
-  .tile{flex:0 0 auto;width:15.5vw;aspect-ratio:16/9.5;border-radius:var(--radius);position:relative;
-    display:flex;align-items:flex-end;justify-content:flex-start;padding:1.6vh 1.2vw;
-    font-weight:700;font-size:2.6vh;letter-spacing:-.01em;color:#fff;outline:none;cursor:pointer;
-    box-shadow:0 1vh 2.5vh rgba(0,0,0,.35);transition:transform .22s cubic-bezier(.2,.8,.2,1),box-shadow .22s;
-    overflow:hidden}
-  .tile::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.28),transparent 45%);opacity:.6;transition:opacity .22s}
-  .tile .ic{position:absolute;top:1.4vh;left:1.2vw;font-size:4.2vh;line-height:1;opacity:.95}
-  .tile span{position:relative;text-shadow:0 1px 6px rgba(0,0,0,.35)}
-  .tile.focus{transform:scale(1.12) translateY(-.6vh);z-index:2;box-shadow:0 3vh 5vh rgba(0,0,0,.6)}
-  .tile.focus::before{opacity:1}
-
-  .hist .tile{width:22vw;background:#222 center/cover no-repeat;font-size:2vh;font-weight:600}
-  .hist .tile::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(0,0,0,.85))}
-  .hist .tile span{z-index:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .tile{flex:0 0 auto;width:15.5vw;aspect-ratio:16/10;border-radius:var(--radius);position:relative;
+    display:flex;align-items:center;justify-content:center;outline:none;cursor:pointer;
+    box-shadow:0 1vh 2.5vh rgba(0,0,0,.35);transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s;
+    overflow:visible}
+  .tile .face{position:absolute;inset:0;border-radius:var(--radius);overflow:hidden}
+  .tile .face::after{content:"";position:absolute;inset:0;border-radius:inherit;
+    background:linear-gradient(160deg,rgba(255,255,255,.22),transparent 40%);opacity:0;transition:opacity .25s}
+  .tile .logo{position:relative;width:42%;max-height:62%;object-fit:contain;filter:drop-shadow(0 .4vh .8vh rgba(0,0,0,.25))}
+  .tile .fallback{position:relative;font-size:3vh;font-weight:700;color:#fff;letter-spacing:-.01em}
+  .tile .name{position:absolute;left:0;right:0;top:calc(100% + 1.4vh);text-align:center;font-size:2vh;font-weight:600;
+    color:#fff;opacity:0;transform:translateY(-.6vh);transition:opacity .2s,transform .2s;white-space:nowrap}
+  .tile.focus{transform:scale(1.13) translateY(-.4vh);z-index:2;box-shadow:0 3.5vh 6vh rgba(0,0,0,.65)}
+  .tile.focus .face::after{opacity:1}
+  .tile.focus .name{opacity:1;transform:none}
+  #apps{padding-bottom:6vh}
+  .hist .tile{width:22vw;aspect-ratio:16/9;align-items:flex-end;justify-content:flex-start;padding:1.6vh 1.2vw}
+  .hist .tile .face{background:#1c1c24 center/cover no-repeat}
+  .hist .tile .face.site{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#2b2b3a,#15151d)}
+  .hist .tile .face.site img{width:22%;opacity:.95}
+  .hist .tile .shade{position:absolute;inset:0;border-radius:var(--radius);background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.85))}
+  .hist .tile span{position:relative;z-index:1;font-size:2vh;font-weight:600;color:#fff;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
   .hist .tile .host{position:absolute;top:1.3vh;left:1vw;z-index:1;font-size:1.5vh;font-weight:600;
     background:rgba(0,0,0,.45);padding:.4vh .7vw;border-radius:8px;color:#ddd}
   .empty{color:var(--muted);font-size:2vh;padding:2vh .6vw}
@@ -135,13 +142,15 @@
 /* ============ AYARLAR (istersen düzenle) ============ */
 // Android TV paket adları. Tarayıcın intent:// linklerini destekliyorsa uygulama doğrudan açılır.
 const APPS = [
-  {name:"YouTube",   ic:"▶",  bg:"linear-gradient(135deg,#ff3b30,#b3001b)", pkg:"com.google.android.youtube.tv", web:"https://www.youtube.com"},
-  {name:"Netflix",   ic:"N",  bg:"linear-gradient(135deg,#1a1a1a,#000)",   pkg:"com.netflix.ninja",            web:"https://www.netflix.com"},
-  {name:"Disney+",   ic:"✦",  bg:"linear-gradient(135deg,#1f3fbf,#0b1a5c)", pkg:"com.disney.disneyplus",        web:"https://www.disneyplus.com"},
-  {name:"Prime Video",ic:"◢", bg:"linear-gradient(135deg,#1aa3e8,#0a3d62)", pkg:"com.amazon.amazonvideo.livingroom", web:"https://www.primevideo.com"},
-  {name:"Spotify",   ic:"♫",  bg:"linear-gradient(135deg,#1ed760,#0f7a36)", pkg:"com.spotify.tv.android",       web:"https://open.spotify.com"},
-  {name:"Google",    ic:"G",  bg:"linear-gradient(135deg,#4285f4,#1a4fb0)", pkg:null,                           web:"https://www.google.com"},
-  {name:"Ayarlar",   ic:"⚙",  bg:"linear-gradient(135deg,#8e8e93,#3a3a3c)", settings:true}
+  // domain: ikon bu sitenin kendisinden çekilir. İstersen "img" ile kendi ikon adresini ver.
+  {name:"YouTube",     domain:"youtube.com",     bg:"#ffffff", pkg:"com.google.android.youtube.tv", web:"https://www.youtube.com"},
+  {name:"Netflix",     domain:"netflix.com",     bg:"#000000", pkg:"com.netflix.ninja",            web:"https://www.netflix.com"},
+  {name:"Disney+",     domain:"disneyplus.com",  bg:"linear-gradient(160deg,#0e3a8c,#04163f)", pkg:"com.disney.disneyplus", web:"https://www.disneyplus.com"},
+  {name:"Prime Video", domain:"primevideo.com",  bg:"linear-gradient(160deg,#1b2c3d,#0f171e)", pkg:"com.amazon.amazonvideo.livingroom", web:"https://www.primevideo.com"},
+  {name:"Spotify",     domain:"spotify.com",     bg:"#121212", pkg:"com.spotify.tv.android",       web:"https://open.spotify.com"},
+  {name:"tabii",       domain:"tabii.com",       bg:"#0b0b0f", pkg:null,                           web:"https://www.tabii.com"},
+  {name:"Google",      domain:"google.com",      bg:"#ffffff", pkg:null,                           web:"https://www.google.com"},
+  {name:"Ayarlar",     icon:"⚙︎",               bg:"linear-gradient(160deg,#8e8e93,#48484a)", settings:true}
 ];
 const NTFY = "https://ntfy.sh";
 const OPEN_DELAY_MS = 4000;     // gelen link kaç ms sonra açılsın
@@ -187,6 +196,7 @@ function ytId(u){
   return null;
 }
 function thumb(u){ const id=ytId(u); return id?`https://i.ytimg.com/vi/${id}/hqdefault.jpg`:null; }
+function siteIcon(d){ return `https://www.google.com/s2/favicons?domain=${d}&sz=256`; }
 function host(u){ try{ return new URL(u).hostname.replace(/^www\./,""); }catch(e){ return ""; } }
 function intentFor(url){
   const id=ytId(url);
@@ -213,8 +223,12 @@ function launchApp(a){
 APPS.forEach(a=>{
   const t=document.createElement("div");
   t.className="tile focusable"; t.tabIndex=0; t.dataset.row=1;
-  t.style.background=a.bg;
-  t.innerHTML=`<div class="ic">${a.ic}</div><span>${a.name}</span>`;
+  const src=a.img||(a.domain?siteIcon(a.domain):null);
+  t.innerHTML=`<div class="face" style="background:${a.bg}"></div>`+
+    (src?`<img class="logo" src="${src}" alt="">`:`<div class="fallback" style="font-size:6vh">${a.icon||""}</div>`)+
+    `<div class="name">${a.name}</div>`;
+  const im=t.querySelector("img");
+  if(im) im.onerror=()=>{ im.replaceWith(Object.assign(document.createElement("div"),{className:"fallback",textContent:a.name})); };
   t.onclick=()=>launchApp(a);
   $("apps").appendChild(t);
 });
@@ -228,9 +242,9 @@ function renderHist(){
     const t=document.createElement("div");
     t.className="tile focusable"; t.tabIndex=0; t.dataset.row=2;
     const th=thumb(h.url);
-    if(th) t.style.backgroundImage=`url(${th})`;
-    else t.style.background="linear-gradient(135deg,#3a3a5c,#1c1c2e)";
-    t.innerHTML=`<div class="host">${esc(host(h.url))}</div><span>${esc(h.title||h.url)}</span>`;
+    const face=th?`<div class="face" style="background-image:url(${th})"></div>`
+                 :`<div class="face site"><img src="${siteIcon(host(h.url))}" alt=""></div>`;
+    t.innerHTML=`${face}<div class="shade"></div><div class="host">${esc(host(h.url))}</div><span>${esc(h.title||h.url)}</span>`;
     t.onclick=()=>launch(h.url);
     box.appendChild(t);
   });
@@ -249,6 +263,17 @@ function updateShelf(){
 $("shelf").onclick=()=>{ if(hist[0]) launch(hist[0].url); };
 renderHist();
 
+// ---- Title lookup (YouTube vb. için) ----
+function fetchTitle(item){
+  if(item.title) return;
+  fetch("https://noembed.com/embed?url="+encodeURIComponent(item.url)).then(r=>r.json()).then(j=>{
+    if(!j||!j.title) return;
+    item.title=j.title; hist=hist.map(h=>h.url===item.url?Object.assign(h,{title:j.title}):h);
+    store.set("hist",hist); renderHist();
+    if(pending) $("tTitle").textContent=j.title;
+  }).catch(()=>{});
+}
+
 // ---- Incoming ----
 let pending=null;
 function incoming(msg){
@@ -263,6 +288,7 @@ function incoming(msg){
   hist=[item,...hist.filter(h=>h.url!==url)].slice(0,MAX_HIST);
   store.set("hist",hist); renderHist();
   showToast(item);
+  fetchTitle(item);
 }
 function showToast(item){
   cancelPending();
