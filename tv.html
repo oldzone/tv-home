@@ -9,7 +9,8 @@
 <style>
 :root{--font:-apple-system,"SF Pro Display","Inter","Helvetica Neue",Roboto,Arial,sans-serif;--ease:cubic-bezier(.2,.8,.2,1);--u:calc(100vw/1920)}
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{width:100%;height:100%;overflow:hidden;background:#000;color:#fff;font-family:var(--font);-webkit-font-smoothing:antialiased;cursor:none}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;color:#fff;font-family:var(--font);-webkit-font-smoothing:antialiased}
+.focusable,.it{cursor:pointer}
 svg{display:block}
 
 /* Liquid glass */
@@ -467,6 +468,22 @@ function connect(){ try{es&&es.close();}catch(e){}
   es.onmessage=e=>{try{const ev=JSON.parse(e.data); if(ev.event==="message"&&ev.message) incoming(ev.message);}catch(err){}}; }
 if(NATIVE){ const u=()=>{try{setStatus(!!NATIVE.isConnected());}catch(e){}}; u(); setInterval(u,3000); } else connect();
 document.addEventListener("visibilitychange",()=>{ if(!NATIVE&&document.visibilityState==="visible"&&(!es||es.readyState===2)) connect(); });
+
+/* ---------- Mouse / touch ---------- */
+// Fare imleci, dokunma veya kumandanın imleç modu ile tıklanınca da çalışsın
+document.addEventListener("click",e=>{
+  if(stopSaver()){ poke(); return; } poke();
+  if(!$("pair").classList.contains("hide")){ setPaired(); return; }
+  const it=e.target.closest(".it");
+  if(it){ si=sideItems().indexOf(it); goPage(it.dataset.page); zone="content"; ci={r:0,c:0}; paint(); return; }
+  const el=e.target.closest(".focusable");
+  if(el && el._go){ el._go(); }
+});
+document.addEventListener("mouseover",e=>{
+  const el=e.target.closest(".focusable"); if(!el||el.classList.contains("focus")) return;
+  const rows=contentRows();
+  for(let r=0;r<rows.length;r++){ const c=rows[r].indexOf(el); if(c>=0){ zone="content"; ci={r,c}; paint(); return; } }
+});
 
 /* ---------- Start ---------- */
 render(); goPage("home"); zone="content"; ci={r:0,c:0}; paint();
