@@ -78,6 +78,15 @@ svg{display:block}
 .credit span{overflow:hidden;text-overflow:ellipsis}
 .credit svg{width:14px;height:14px;flex:0 0 auto}
 
+.stwrap{text-align:center;margin-top:8px}
+.st{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;padding:8px 14px;border-radius:18px}
+.st i{width:7px;height:7px;border-radius:50%;background:#ff9f0a}.st i.on{background:var(--green)}
+.box{margin-top:26px;border-radius:30px;padding:14px}
+.box .field{background:rgba(255,255,255,.18);height:54px;border-radius:18px}
+.row2{display:flex;gap:10px;margin-top:12px}
+.btn.big{height:50px;border-radius:25px;justify-content:center;font-size:17px;font-weight:700}
+.btn.big.w1{flex:1}.btn.big.g{width:116px;font-weight:600}
+
 /* HUD */
 .hud{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 8px);z-index:50;transform:translate(-50%,-180%);display:flex;align-items:center;gap:10px;
   padding:10px 18px 10px 10px;border-radius:30px;transition:transform .5s var(--ease);font-size:15px;font-weight:600;white-space:nowrap;background:rgba(40,40,44,.6)!important}
@@ -152,39 +161,26 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:rgba(255
   <div class="d" id="date"></div><b id="time">--:--</b>
 </div>
 
-<div class="grid">
-  <div class="w lg span">
-    <div class="k"><i id="dot"></i><span id="tvK">Salon TV · bağlı değil</span></div>
-    <div class="t" id="tvT">Ekranı açmak için dokun</div>
-    <div class="btns">
-      <button class="btn w1 tap" id="wake"><svg><use href="#i-tv"/></svg>Ekranı aç</button>
-      <button class="btn g tap" id="home"><svg><use href="#i-home"/></svg>Ana ekran</button>
-    </div>
+<div class="stwrap"><button class="st lg tap" id="wake"><i id="dot"></i><span id="tvK">Salon TV</span></button></div>
+
+<div class="w lg box">
+  <div class="field"><svg><use href="#i-link"/></svg>
+    <input id="q" placeholder="Link yapıştır ya da ara…" enterkeyhint="go" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
+  <div class="row2">
+    <button class="btn w1 big tap" id="go">TV'de aç</button>
+    <button class="btn g big tap" id="paste">Yapıştır</button>
   </div>
-
-  <button class="w lg sq tap" id="wLink"><div class="ic"><svg><use href="#i-link"/></svg></div>
-    <div><div class="k">Panodan</div><div class="t">Link gönder</div></div></button>
-  <button class="w lg sq tap" id="wSearch"><div class="ic"><svg><use href="#i-search"/></svg></div>
-    <div><div class="k">Google · YouTube</div><div class="t">TV'de ara</div></div></button>
-
-  <div class="w lg span"><div class="apps" id="apps"></div></div>
-
-  <div class="w lg span"><div class="k">Son gönderilenler</div><div id="hist"></div></div>
 </div>
+
+<div class="w lg" style="margin-top:12px"><div class="apps" id="apps"></div></div>
+
+<div class="w lg" style="margin-top:12px"><div class="k">Son gönderilenler</div><div id="hist"></div></div>
 
 <div class="credit lg" id="credit"><svg><use href="#i-photo"/></svg><span id="creditTxt">Günün manzarası</span></div>
 
 <div class="hud lg" id="hud"><div class="hi" id="hudI"><svg><use href="#i-check"/></svg></div><span id="hudT"></span></div>
 
 <div class="scrim" id="scrim"></div>
-
-<!-- Gönder / Ara sayfası -->
-<div class="sheet" id="sAct">
-  <div class="grab"></div>
-  <h3 id="actTitle">TV'de ara</h3>
-  <div class="field"><svg><use href="#i-search"/></svg><input id="q" placeholder="Ara veya link yapıştır" enterkeyhint="go" autocapitalize="off" autocorrect="off" spellcheck="false"></div>
-  <div class="opts" id="opts"></div>
-</div>
 
 <!-- Ayarlar -->
 <div class="sheet" id="sSet">
@@ -254,8 +250,7 @@ function hud(t,ok=true){ $("hudT").textContent=t; $("hudI").className="hi"+(ok?"
 /* ---------- TV status ---------- */
 function refresh(){
   $("dot").classList.toggle("on",connected);
-  $("tvK").textContent=code?`Salon TV · ${connected?"bağlı":"kod "+code}`:"Salon TV · bağlı değil";
-  $("tvT").textContent=lastAction||(code?"Hazır":"Kodu girmek için ⚙︎");
+  $("tvK").textContent=code?(connected?"Salon TV bağlı":"Salon TV · dokun, bağlan"):"TV'ye bağlan";
   $("codeVal").textContent=code||"Yok";
   $("postUrl").textContent=`${NTFY}/tvhome-${code||"KOD"}`;
   $("tvUrl").textContent=(base()+"tv.html").replace(/^https?:\/\//,"");
@@ -268,16 +263,15 @@ async function post(obj){
   try{ const r=await fetch(`${NTFY}/tvhome-${code}`,{method:"POST",body:JSON.stringify(obj)}); if(!r.ok) throw 0; haptic(); connected=true; refresh(); return true; }
   catch(e){ hud("Gönderilemedi",false); return false; }
 }
-async function sendUrl(url,now,label){
+async function sendUrl(url,now,label,title){
   if(!url) return hud("Link bulunamadı",false);
   if(await post({t:"open",url,now:!!now})){
     hud(label||"TV'ye gönderildi"); closeSheets();
-    hist=[{url,ts:Date.now()},...hist.filter(h=>h.url!==url)].slice(0,12); store.set("hist",hist); renderHist();
+    hist=[{url,ts:Date.now(),title:title||""},...hist.filter(h=>h.url!==url)].slice(0,12); store.set("hist",hist); renderHist();
     setLast((ytId(url)?"YouTube: ":"")+(hist[0].title||host(url)));
   }
 }
-$("wake").onclick=async()=>{ if(await post({t:"wake"})){ hud("TV ekranı açıldı"); } };
-$("home").onclick=async()=>{ if(await post({t:"home"})){ hud("Ana ekran"); setLast("Ana ekranda"); } };
+$("wake").onclick=async()=>{ if(!code) return showOnb(); if(await post({t:"wake"})) hud("TV'ye bağlandı"); };
 
 /* ---------- Sheets ---------- */
 function openSheet(id){ $(id).classList.add("show"); $("scrim").classList.add("show"); }
@@ -286,24 +280,20 @@ $("scrim").onclick=closeSheets;
 $("openSet").onclick=()=>openSheet("sSet");
 $("chgCode").onclick=()=>{ closeSheets(); setTimeout(showOnb,250); };
 
-function opt(ic,color,t1,t2,fn){ const b=document.createElement("button"); b.className="opt";
-  b.innerHTML=`<div class="oi" style="background:${color}">${svg(ic)}</div><div><div class="o1">${esc(t1)}</div>${t2?`<div class="o2">${esc(t2)}</div>`:""}</div>`; b.onclick=fn; return b; }
-function renderOpts(){
-  const v=$("q").value.trim(), box=$("opts"); box.innerHTML=""; if(!v){ box.style.display="none"; return; } box.style.display="";
+/* ---------- Tek kutu ---------- */
+function goField(){
+  const v=$("q").value.trim(); if(!v){ $("q").focus(); return; }
   const url=extract(v);
-  if(url){ box.appendChild(opt("i-tv","var(--blue)","TV'de aç",host(url),()=>sendUrl(url,true,"TV'de açılıyor"))); return; }
-  const e=encodeURIComponent(v);
-  box.appendChild(opt("i-tv","var(--blue)","TV'de Google'da ara",`“${v}”`,()=>sendUrl("https://www.google.com/search?q="+e,true,"TV'de aranıyor")));
-  box.appendChild(opt("i-play","#ff3b30","TV'de YouTube'da ara",`“${v}”`,()=>sendUrl("https://www.youtube.com/results?search_query="+e,true,"YouTube'da aranıyor")));
-  box.appendChild(opt("i-globe","#636366","iPhone'da ara","Bulunca Paylaş → TV'ye Gönder",()=>{ location.href="https://www.google.com/search?q="+e; }));
+  if(url) sendUrl(url,true,"TV'de açılıyor");
+  else sendUrl("https://www.google.com/search?q="+encodeURIComponent(v),true,"TV'de aranıyor","Arama: "+v);
+  $("q").value=""; $("q").blur();
 }
-$("q").addEventListener("input",renderOpts);
-$("q").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); const f=$("opts").querySelector(".opt"); f&&f.click(); } });
-function openAct(title,ph){ $("actTitle").textContent=title; $("q").placeholder=ph; $("q").value=""; renderOpts(); openSheet("sAct"); setTimeout(()=>$("q").focus(),350); }
-$("wSearch").onclick=()=>openAct("TV'de ara","Ne izlemek istersin?");
-$("wLink").onclick=async()=>{
-  try{ const t=await navigator.clipboard.readText(); const u=extract(t); if(u) return sendUrl(u,false,"TV'ye gönderildi"); }catch(e){}
-  openAct("Link gönder","Linki yapıştır");
+$("go").onclick=goField;
+$("q").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); goField(); } });
+$("paste").onclick=async()=>{
+  try{ const t=(await navigator.clipboard.readText()||"").trim(); if(!t) return hud("Pano boş",false);
+       $("q").value=t; if(extract(t)) goField(); }
+  catch(e){ $("q").focus(); hud("Kutuya uzun bas → Yapıştır",false); }
 };
 
 /* ---------- Apps ---------- */
