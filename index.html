@@ -161,7 +161,7 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:rgba(255
   <div class="d" id="date"></div><b id="time">--:--</b>
 </div>
 
-<div class="stwrap"><button class="st lg tap" id="wake"><i id="dot"></i><span id="tvK">Salon TV</span></button></div>
+<div class="stwrap"><button class="st lg tap" id="codeChip"><i id="dot"></i><span id="tvK">TV kodunu gir</span></button></div>
 
 <div class="w lg box">
   <div class="field"><svg><use href="#i-link"/></svg>
@@ -200,11 +200,12 @@ code{font-family:ui-monospace,Menlo,monospace;font-size:12px;background:rgba(255
 </div>
 
 <div class="onb hide" id="onb">
-  <h2>TV'ye bağlan</h2>
-  <p>TV ekranındaki 6 haneli kodu gir.</p>
+  <h2>TV kodu</h2>
+  <p>TV ekranının sol menüsündeki<br><b>TV KODU</b>nu buraya yaz.</p>
   <label class="boxes" id="boxes"><span></span><span></span><span></span><span></span><span></span><span></span>
     <input id="onbIn" maxlength="6" autocapitalize="characters" autocorrect="off" autocomplete="one-time-code" spellcheck="false"></label>
-  <button class="btn w1 go tap" id="onbGo" disabled>Bağlan</button>
+  <button class="btn w1 go tap" id="onbGo" disabled>Kaydet ve bağlan</button>
+  <button class="btn g tap" id="onbX" style="margin-top:12px">Vazgeç</button>
 </div>
 
 <script src="apps.js"></script>
@@ -250,7 +251,7 @@ function hud(t,ok=true){ $("hudT").textContent=t; $("hudI").className="hi"+(ok?"
 /* ---------- TV status ---------- */
 function refresh(){
   $("dot").classList.toggle("on",connected);
-  $("tvK").textContent=code?(connected?"Salon TV bağlı":"Salon TV · dokun, bağlan"):"TV'ye bağlan";
+  $("tvK").textContent=code?`TV kodu: ${code} · değiştir`:"TV kodunu gir";
   $("codeVal").textContent=code||"Yok";
   $("postUrl").textContent=`${NTFY}/tvhome-${code||"KOD"}`;
   $("tvUrl").textContent=(base()+"tv.html").replace(/^https?:\/\//,"");
@@ -271,7 +272,7 @@ async function sendUrl(url,now,label,title){
     setLast((ytId(url)?"YouTube: ":"")+(hist[0].title||host(url)));
   }
 }
-$("wake").onclick=async()=>{ if(!code) return showOnb(); if(await post({t:"wake"})) hud("TV'ye bağlandı"); };
+$("codeChip").onclick=()=>showOnb();
 
 /* ---------- Sheets ---------- */
 function openSheet(id){ $(id).classList.add("show"); $("scrim").classList.add("show"); }
@@ -326,8 +327,9 @@ function renderHist(){
 function drawBoxes(){ const v=$("onbIn").value; [...$("boxes").querySelectorAll("span")].forEach((b,i)=>{ b.textContent=v[i]||""; b.classList.toggle("cur",i===Math.min(v.length,5)); }); $("onbGo").disabled=v.length<6; }
 $("onbIn").addEventListener("input",e=>{ e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6); drawBoxes(); });
 $("onbGo").onclick=async()=>{ code=$("onbIn").value; store.set("tvcode",code); refresh();
-  if(await post({t:"wake"})){ $("onb").classList.add("hide"); hud("TV'ye bağlandı"); } };
-function showOnb(){ $("onb").classList.remove("hide"); $("onbIn").value=""; drawBoxes(); setTimeout(()=>$("onbIn").focus(),350); }
+  if(await post({t:"wake"})){ $("onb").classList.add("hide"); hud("Kaydedildi · TV'ye bildirim gitti"); } };
+$("onbX").onclick=()=>$("onb").classList.add("hide");
+function showOnb(){ $("onb").classList.remove("hide"); $("onbIn").value=code||""; drawBoxes(); setTimeout(()=>$("onbIn").focus(),350); }
 
 /* ---------- Init ---------- */
 const qp=new URLSearchParams(location.search);

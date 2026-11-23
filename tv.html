@@ -36,6 +36,10 @@ svg{display:block}
 .who .st{font-size:calc(17*var(--u));opacity:.75;display:flex;align-items:center;gap:calc(6*var(--u))}
 .who .st i{width:calc(9*var(--u));height:calc(9*var(--u));border-radius:50%;background:#ff9f0a}
 .who .st i.on{background:#30d158}
+.tvcode{margin:0 calc(12*var(--u)) calc(26*var(--u));padding:calc(14*var(--u)) calc(16*var(--u));border-radius:calc(18*var(--u));
+  background:rgba(255,255,255,.12);box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
+.tvcode span{display:block;font-size:calc(14*var(--u));letter-spacing:.12em;opacity:.7;font-weight:600}
+.tvcode b{display:block;font-size:calc(40*var(--u));font-weight:700;letter-spacing:.14em;margin-top:calc(2*var(--u))}
 .it{display:flex;align-items:center;gap:calc(16*var(--u));padding:calc(16*var(--u)) calc(18*var(--u));border-radius:calc(20*var(--u));
   font-size:calc(23*var(--u));font-weight:500;color:rgba(255,255,255,.85);transition:background .25s,color .25s,transform .25s var(--ease),box-shadow .25s}
 .it svg{width:calc(28*var(--u));height:calc(28*var(--u))}
@@ -166,6 +170,7 @@ body.nocredit .credit{opacity:0}
 <nav class="side lg">
   <div class="who"><div class="av"><svg><use href="#i-tv"/></svg></div>
     <div><div class="nm">Salon TV</div><div class="st"><i id="dot"></i><span id="stTxt">Bağlanıyor…</span></div></div></div>
+  <div class="tvcode"><span>TV KODU</span><b id="sideCode"></b></div>
   <div class="it" data-page="home"><svg><use href="#i-home"/></svg>Ana Sayfa</div>
   <div class="it" data-page="sent"><svg><use href="#i-send"/></svg>Gönderilenler</div>
   <div class="it" data-page="apps"><svg><use href="#i-grid"/></svg>Uygulamalar</div>
@@ -229,7 +234,7 @@ let code=(location.hash.match(/k=([A-Z0-9]{4,12})/i)||[])[1];
 if(code){code=code.toUpperCase();store.set("tvcode",code);} else {code=store.get("tvcode",null)||genCode();store.set("tvcode",code);}
 const topic="tvhome-"+code;
 const boxes=c=>[...c].map(x=>`<span>${x}</span>`).join("");
-$("pairCode").innerHTML=boxes(code); $("setCode").innerHTML=boxes(code);
+$("pairCode").innerHTML=boxes(code); $("setCode").innerHTML=boxes(code); $("sideCode").textContent=code;
 let paired=store.get("paired",false);
 if(!paired) $("pair").classList.remove("hide");
 function setPaired(){ if(!paired){paired=true;store.set("paired",true);} $("pair").classList.add("hide"); }
@@ -460,7 +465,7 @@ function incoming(msg){
 }
 
 /* ---------- Connection ---------- */
-function setStatus(on){ $("dot").classList.toggle("on",on); $("stTxt").textContent=on?"iPhone'a hazır":"Bağlanıyor…"; }
+function setStatus(on){ $("dot").classList.toggle("on",on); $("stTxt").textContent=on?"Hazır":"İnternete bağlanıyor…"; }
 let es;
 function connect(){ try{es&&es.close();}catch(e){}
   es=new EventSource(`${NTFY}/${topic}/sse`);
